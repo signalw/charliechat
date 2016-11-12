@@ -9,6 +9,32 @@ We are trying to create a web application that allows users to request MBTA info
 ### Cloud production
 https://mbtachat.herokuapp.com
 
+### Local development setup
+Steps below assume we are in UNIX environment. Windows users can use Cygwin, Git Bash, etc. to achieve similar functionalities.
+
+We recommend using `pip` and `virtualenv` to manage python dependencies, if they are not installed yet:
+
+    sudo easy_install pip
+    sudo pip install virtualenv
+
+Now we change into the root directory as it has been cloned from git and install the python dependencies:
+
+    cd CharlieChat
+    virtualenv venv      # creates a new virtual environment  in ./venv
+    source venv/bin/activate  # activates the virtual environment
+    pip install -r requirements.txt  # installs the python dependencies
+
+While in virtual environment, run server by calling:
+
+    python manage.py runserver   # Runs the local development server
+    python3 manage.py runserver   # Python3 is recommended, if the default interpreter is not
+
+Now the local host should be listening to port 8000 by default. To exit, hit "Ctrl+C".
+
+To exit virtual environment:
+
+    deactivate    # deactivates the virtual environment
+
 ### Authors
 
 * Jessica Huynh
