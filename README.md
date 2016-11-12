@@ -1,5 +1,6 @@
-CharlieChat
+CharlieChat  
 ============
+[ ![Codeship Status for signalw/charliechat](https://app.codeship.com/projects/4f8a4580-8b0c-0134-4d70-7a22352218be/status?branch=master)](https://app.codeship.com/projects/184581)
 
 CharlieChat is a project for the course CS136a - Automated Speech Recognition at Brandeis Univerisity.
 
