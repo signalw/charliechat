@@ -19,7 +19,7 @@ We recommend using `pip` and `virtualenv` to manage python dependencies, if they
 
 Now we change into the root directory as it has been cloned from git and install the python dependencies:
 
-    cd CharlieChat
+    cd charliechat
     virtualenv venv      # creates a new virtual environment  in ./venv
     source venv/bin/activate  # activates the virtual environment
     pip install -r requirements.txt  # installs the python dependencies
