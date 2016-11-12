@@ -9,8 +9,5 @@ __pycache__/
 env/
 venv/
 
-# secret_keys
-local_settings.py
-
 # database
 *.sqlite3
