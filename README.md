@@ -21,7 +21,7 @@ Now we change into the root directory as it has been cloned from git and install
 
     cd charliechat
     virtualenv venv      # creates a new virtual environment  in ./venv
-    source venv/bin/activate  # activates the virtual environment
+    source venv/bin/activate  # activates the virtual environment; on Windows do . venv/Scripts/activate.bat
     pip install -r requirements.txt  # installs the python dependencies
 
 While in virtual environment, run server by calling:
@@ -33,7 +33,7 @@ Now the local host should be listening to port 8000 by default. To exit, hit "Ct
 
 To exit virtual environment:
 
-    deactivate    # deactivates the virtual environment
+    deactivate    # deactivates the virtual environment; on Windows do . venv/Scripts/deactivate.bat
 
 ### Authors
 
