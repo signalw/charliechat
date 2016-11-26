@@ -1,0 +1,7 @@
+input.disabled-button, button.disabled-button {
+    background-color: #ccc;
+}
+input.disabled-button:hover, button.disabled-button:hover {
+    border: 1px solid #bbb;
+    color:#555;
+}
