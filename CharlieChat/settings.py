@@ -128,3 +128,12 @@ STATICFILES_DIRS = (
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+# cookies over HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Redirect requests over HTTPS
+# https://docs.djangoproject.com/en/1.10/ref/settings/
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", False)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
