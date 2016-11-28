@@ -129,9 +129,12 @@ STATICFILES_DIRS = (
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
+# login redirect
+LOGIN_REDIRECT_URL = '/'
+
 # cookies over HTTPS
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # Redirect requests over HTTPS
 # https://docs.djangoproject.com/en/1.10/ref/settings/
