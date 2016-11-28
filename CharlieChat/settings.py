@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'CharlieChat.wsgi.application'
 if os.environ.get('DATABASE_URL'):
     # config database for heroku
     import dj_database_url
-    DATABASES['default'] =  dj_database_url.config()
+    DATABASES = {'default': dj_database_url.config()} 
 else:
     DATABASES = {
         'default': {
