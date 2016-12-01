@@ -5,4 +5,9 @@ from django.shortcuts import render
 # Create your views here.
 
 def index(request):
-    return render(request, 'index.html')
+    request.session['_messages'] = request.session.get('_messages', "Conversations will be displayed below:\n")
+    if request.method == "GET":
+        return render(request, 'index.html', {'messages': request.session['_messages']})
+    else:
+        request.session['_messages'] += request.POST.get('query')+"\n"
+        return render(request, 'index.html', {'messages': request.session['_messages']})

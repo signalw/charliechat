@@ -13,18 +13,21 @@ You are using as a public user. <a href="/login">Sign in</a>.
 {% endif %}
 
 <form method="post">
+  {% csrf_token %}
   <div class="row">
       <div class="two columns">
         <input class="button u-full-width" type="button" value="speak" id="speakInput">
       </div>
       <div class="eight columns">
-        <input class="u-full-width" id="userInputBox" type="text" placeholder="Say (or type) something!">
+        <input class="u-full-width" id="userInputBox" name="query" type="text" placeholder="Say (or type) something!">
       </div>
       <div class="two columns">
         <input class="button-primary u-full-width" type="submit" value="Submit">
       </div>
   </div>
 </form>
+
+<pre>{{ messages }}</pre>
 
 <!-- test_geoloc -->
 <br /><br />
