@@ -1,7 +1,7 @@
 import re
 import requests
 
-import settings
+from CharlieChat import settings
 
 #take params from user
 #origin = input ("enter an origin between paren\n")
