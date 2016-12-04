@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-import importlib
-config_present = importlib.machinery.PathFinder.find_spec("config") # if there's no config, we're on heroku
-if config_present:
+if not os.environ.get('DATABASE_URL'): # not on heroku
     import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
