@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import importlib
-config_present = importlib.util.find_spec("config") # if there's no config, we're on heroku
+config_present = importlib.machinery.PathFinder.find_spec("config") # if there's no config, we're on heroku
 if config_present:
     import config
 
