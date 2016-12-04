@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'CharlieChat.wsgi.application'
 if os.environ.get('DATABASE_URL'):
     # config database for heroku
     import dj_database_url
-    DATABASES = {'default': dj_database_url.config()} 
+    DATABASES = {'default': dj_database_url.config()}
 else:
     DATABASES = {
         'default': {
@@ -149,7 +149,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 
 # API keys (based off databases)
-if os.environ.get('GOOGLE_API_KEY'):
-    GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
-else:
-    GOOGLE_API_KEY = config.GOOGLE_API_KEY
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') or config.GOOGLE_API_KEY
