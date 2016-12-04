@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -145,3 +146,10 @@ CSRF_COOKIE_SECURE = False
 # https://docs.djangoproject.com/en/1.10/ref/settings/
 SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", False)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
+
+# API keys (based off databases)
+if os.environ.get('GOOGLE_API_KEY'):
+    GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+else:
+    GOOGLE_API_KEY = config.GOOGLE_API_KEY

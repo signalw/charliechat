@@ -1,7 +1,7 @@
-import json
 import re
-
 import requests
+
+import config
 
 #take params from user
 #origin = input ("enter an origin between paren\n")
@@ -14,7 +14,7 @@ def getPath():
 	url = "https://maps.googleapis.com/maps/api/directions/json"
 	params = {'origin':origin,
 	'destination':destination,
-	'key':'AIzaSyDoIcIWHO6WZ9XZhIEU7VOQNA4ZcIIVDbw',
+	'key':config.GOOGLE_API_KEY,
 	'mode':'transit',
 	}
 
