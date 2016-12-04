@@ -14,4 +14,3 @@ venv/
 *.sqlite3
 
 # keys
-config.py
