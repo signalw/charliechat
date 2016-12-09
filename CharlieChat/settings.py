@@ -150,3 +150,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 # API keys (based off databases)
 GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') or config.GOOGLE_API_KEY
+APIAI_DEVELOPER_TOKEN = os.environ.get('APIAI_DEVELOPER_TOKEN') or config.APIAI_DEVELOPER_TOKEN
