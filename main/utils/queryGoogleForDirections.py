@@ -6,9 +6,9 @@ from CharlieChat import settings
 #take params from user
 #origin = input ("enter an origin between paren\n")
 #destination = input("enter a destination between paren \n")
-def getPath():
-	origin = "45Hawthornestsomerville"
-	destination = "Downtowncrossing"
+def getPath(orig, dest):
+	origin = orig #"45Hawthornestsomerville"
+	destination = dest #"Downtowncrossing"
 
 	#put parameters in URL path
 	url = "https://maps.googleapis.com/maps/api/directions/json"

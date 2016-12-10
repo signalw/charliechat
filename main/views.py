@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from .utils.queryGoogleForDirections import getPath
-from .utils.apiai import apiai_request
+from .utils.apiai import *
 
 def index(request):
     request.session['_messages'] = request.session.get('_messages',
@@ -16,6 +16,11 @@ def index(request):
         query = request.POST.get('query')
         request.session['_messages'] += query + '\n'
         response = apiai_request(query)
-        request.session['_messages'] += response["result"]["fulfillment"] \
-                                                ["speech"] + '\n'
+        address1, address2 = get_addresses_from_response(response)
+        if not address2:
+            request.session['_messages'] += response["result"]["fulfillment"] \
+                                                    ["speech"] + '\n'
+        else:
+            address1 = validate(address1)
+            request.session['_messages'] += getPath(address1, address2) + '\n'
         return HttpResponseRedirect(reverse('index'))
