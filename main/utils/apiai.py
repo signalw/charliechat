@@ -20,3 +20,7 @@ def validate(address):
     if not address or address.lower() in curr:
         return "45Hawthornestsomerville"
     return address
+
+def get_intent_from_response(response):
+    """get intent from API.AI"""
+    return response["result"]["metadata"].get('intentName')
