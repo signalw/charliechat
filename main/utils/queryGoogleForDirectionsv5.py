@@ -34,7 +34,7 @@ zone_dict ={"South Station":"1A","JFK/UMass":"1A","Quincy Center":1,\
     "Wakefield":2,"Reading":2,"North Wilmington":3,"Ballardvale":4,"Andover":5,"Lawrence":6,"Bradford":7,"Haverhill":7,\
     "Chelsea":"1A","River Works":2,"Lynn":2,"Swampscott":3,"Salem":3,"Beverly Depot":4,"North Beverly":5,"Hamilton/Wenham":5,\
     "Ipswich":6,"Rowley":7,"Newburyport":8,"Montserrat":4,"Prides Crossing":5,"Beverly Farms":5,"Manchester":6,\
-    "West Gloucester":7,"Gloucester":7,"Rockport":8}
+    "West Gloucester":7,"Gloucester":7,"Rockport":8,"Boston North Station":"1A"}
 
 #necessary dictinaries for alerting API
 alertnames = {'Chiswick Road': 'place-chswk', 'North Quincy': 'place-nqncy', 'Boston College': 'place-lake',\
@@ -193,7 +193,7 @@ def process_directions(origin,destination):
         arrivaltime = txt['legs'][0]['arrival_time']['text']
         departtime = txt['legs'][0]['departure_time']['text']
         duration = txt['legs'][0]['duration']['text']
-        directionsraw = str(txt2).encode('utf-8').split('html_instructions')[1:]
+        directionsraw = str(txt2).split('html_instructions')[1:]
         directions_cleaner = ""
         for item in directionsraw:
             if len(re.findall(r'Subway toward',item)) !=0 or len(re.findall(r'Light rail towards',item)) !=0 \
@@ -206,7 +206,8 @@ def process_directions(origin,destination):
                 getOnAt= subwayDetails[1].split("'")[1]
                 getOffAt = subwayDetails[2].split("'")[1]
                 if len(re.findall(r'Subway toward',item)) !=0:
-                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']               
+                    MBTA_trip_price = MBTA_trip_price + price_dict['subway'] 
+                    
                     line = subwayDetails[5].split("'")[1]
                     if item == 'Red Line Subway towards Ashmont':
                         lineList = routeorders['Red Ashmont']
@@ -215,18 +216,26 @@ def process_directions(origin,destination):
                     else:
                         lineList = routeorders[line]
                 elif len(re.findall(r'Light rail towards',item)) !=0:
-                    line = subwayDetails[3].split("'")[0]
+                    line = subwayDetails[3].split("'")[1]
                     lineList = routeorders[line]
                     MBTA_trip_price = MBTA_trip_price + price_dict['subway']
                 elif len(re.findall(r'Bus towards',item)) !=0:
                     MBTA_trip_price = MBTA_trip_price + price_dict['bus']
-                    line= subwayDetails[4].split("'")[0]
+                    line= subwayDetails[4].split("'")[1]
 
                 #this one is commuter rail and does not include alerts
                 else:
-                    line= subwayDetails[5].split("'")[0]
-                    onZone = zone_dict[getOnAt]
-                    offZone = zone_dict[getOffAt]
+                    line= subwayDetails[5].split("'")[1]
+                    if getOnAt in zone_dict:
+                        onZone = zone_dict[getOnAt]
+                    #this guessing method could be improved
+                    else:
+                        onZone = "1A"
+                    if getOffAt in zone_dict:
+                        offZone = zone_dict[getOffAt]
+                    else:
+                        #this guessing method could be improved
+                        offZone = "1A"
                     if onZone=="1A" and offZone =="1A":
                         MBTA_trip_price = MBTA_trip_price + price_dict['1A']
                     elif onZone=="1A" or offZone =="1A":
@@ -243,20 +252,25 @@ def process_directions(origin,destination):
                 for i in range(len(lineList)):
                     if lineList[i] == getOnAt:
                         if look == True:
-                            alertdict[lineList[i]] = alertnames[lineList[i]]
+                            if lineList[i] in alertdict:
+                                alertdict[lineList[i]] = alertnames[lineList[i]]
                             look = False
                         else:
                             look = True
-                            alertdict[lineList[i]] =alertnames[lineList[i]]
+                            if lineList[i] in alertdict:
+                                alertdict[lineList[i]] =alertnames[lineList[i]]
                     elif lineList[i]==getOffAt:
                         if look ==True:
-                            alertdict[lineList[i]] = alertnames[lineList[i]]
+                            if lineList[i] in alertdict:
+                                alertdict[lineList[i]] = alertnames[lineList[i]]
                             look = False
                         else:
-                            alertdict[lineList[i]] = alertnames[lineList[i]]
+                            if lineList[i] in alertdict:
+                                alertdict[lineList[i]] = alertnames[lineList[i]]
                     else:
                         if look ==True:
-                            alertdict[lineList[i]] = alertnames[lineList[i]]
+                            if lineList[i] in alertdict:
+                                alertdict[lineList[i]] = alertnames[lineList[i]]
                             
                 for stop in alertdict:
 
@@ -290,4 +304,4 @@ def return_travel_info(origin, destination):
     print(destination)
     printdict = process_directions(origin,destination)
     return printdict
-return_travel_info("DavisSquareBoston","FitchbergBoston")
+return_travel_info("BrandeisBoston","Fitchberg")
