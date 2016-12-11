@@ -44,6 +44,11 @@ else {
     recognition.onend = function(event) {
         renableButton('#speakInput');
         $('#userInputBox').val(final_transcript);
+
+        // submit if option checked
+        if ($('#autoSubmit').is(':checked')) {
+            $('#queryForm').submit();
+        }
     }
 }
 

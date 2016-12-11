@@ -28,8 +28,24 @@ You are using as a public user. <a href="/login">Sign in</a>.
         <input class="button-primary u-full-width" type="submit" value="Submit" onclick="getLocation()">
       </div>
   </div>
+  <div class="row">
+    <div class="two columns">
+      <a href="/about">About</a>
+    </div>
+    <div class="eight columns">
+      <label for="autoSubmit">
+        <input type="checkbox" id="autoSubmit" checked>
+        <span class="label-body">Automatically submit after finishing speaking</span>
+      </label>
+    </div>
+    <div class="two columns">
+      <a href="#">Help</a>
+    </div>
+  </div>
   <!-- clear session -->
-  <input class="button-primary u-full-width" name="clear_messages" type="submit" value="Clear Messages">
+  <div class="row">
+   <input class="button-primary u-full-width" name="clear_messages" type="submit" value="Clear Messages">
+  </div>
 </form>
 
 {% endblock content %}
