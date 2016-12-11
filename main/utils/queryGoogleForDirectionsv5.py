@@ -203,6 +203,7 @@ def process_directions(origin,destination):
           #      print(item)
                 subwayToward = item[:item.find('distance')][4:-3]
                 subwayDetails = item.split("'name'")  
+                print(subwayDetails)
                 getOnAt= subwayDetails[1].split("'")[1]
                 getOffAt = subwayDetails[2].split("'")[1]
                 if len(re.findall(r'Subway toward',item)) !=0:
