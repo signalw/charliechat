@@ -14,7 +14,7 @@ You are using as a public user. <a href="/login">Sign in</a>.
 
 <form method="post">
   {% csrf_token %}
-  <input id="geo_loc" name="geo_loc">
+  <input id="geo_loc" name="geo_loc" hidden>
   <div class="row">
       <div class="two columns">
         <input class="button u-full-width" type="button" value="speak" id="speakInput">
@@ -31,11 +31,5 @@ You are using as a public user. <a href="/login">Sign in</a>.
 </form>
 
 <pre>{{ messages }}</pre>
-
-<!-- test_geoloc -->
-<br /><br />
-<p>Click the button below to get current coordinates.</p>
-<button onclick="getLocation()">Where am I?</button>
-<button onclick="clearLocation()">Clear</button>
 
 {% endblock content %}
