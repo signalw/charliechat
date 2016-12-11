@@ -1,7 +1,6 @@
 import requests
 from CharlieChat import settings
 import re
-
 #ticket price variables. assumes no charlie-card
 #most prices pertain to charlie card zones.  '1A' is the price to go between two '1A' stops only
 #the whole numbers are prices to go between a 1A stop to the listed zone, the keys that end
@@ -89,12 +88,12 @@ routeorders = {'Green Line B': ['Lechmere', 'Science Park', 'North Station', 'Ha
     'Saint Paul Street', 'Pleasant Street', 'Babcock Street', 'Packards Corner', \
     'Harvard Avenue', 'Griggs Street', 'Allston Street', 'Warren Street', 'Washington Street', \
     'Sutherland Road', 'Chiswick Road', 'Chestnut Hill Ave', ' South Street', 'Boston College'], \
-    'Blue': ['Wonderland', 'Revere Beach', 'Beachmont', 'Suffolk Downs', 'Orient Heights', 'Wood Island', \
+    'Blue Line': ['Wonderland', 'Revere Beach', 'Beachmont', 'Suffolk Downs', 'Orient Heights', 'Wood Island', \
     'Airport', 'Maverick', 'Aquarium', 'State', 'Government', 'Bowdoin'], \
-    'Orange': ['Oak Grove', 'Malden Center', 'Wellington', 'Assembly', 'Sullivan Square', \
+    'Orange Line': ['Oak Grove', 'Malden Center', 'Wellington', 'Assembly', 'Sullivan Square', \
     'Community College', 'North Station', 'Haymarket', 'State', 'Downtown Crossing', 'Chinatown', \
     'Tufts', 'Back Bay', 'Massachusetts Ave.', 'Ruggles', 'Roxbury Crossing', 'Jackson Square',\
-    'Stony Brook', 'Greet Street', 'Forest Hills'], 'Green': ['Lechmere', 'Science Park', 'North Station',\
+    'Stony Brook', 'Greet Street', 'Forest Hills'], 'Green Line': ['Lechmere', 'Science Park', 'North Station',\
     'Haymarket', 'Park Street', 'Boylston', 'Arlington', 'Copley', 'Hynes Convention Center', \
     'Kenmore'], 'Green Line E': ['Lechmere', 'Science Park', 'North Station', 'Haymarket', \
     'Park Street', 'Boylston', 'Arlington', 'Copley', 'Hynes Convention Center', 'Kenmore', \
@@ -194,7 +193,7 @@ def process_directions(origin,destination):
         arrivaltime = txt['legs'][0]['arrival_time']['text']
         departtime = txt['legs'][0]['departure_time']['text']
         duration = txt['legs'][0]['duration']['text']
-        directionsraw = str(txt2).split('html_instructions')[1:]
+        directionsraw = str(txt2).encode('utf-8').split('html_instructions')[1:]
         directions_cleaner = ""
         for item in directionsraw:
             if len(re.findall(r'Subway toward',item)) !=0 or len(re.findall(r'Light rail towards',item)) !=0 \
@@ -207,14 +206,14 @@ def process_directions(origin,destination):
                 getOnAt= subwayDetails[1].split("'")[1]
                 getOffAt = subwayDetails[2].split("'")[1]
                 if len(re.findall(r'Subway toward',item)) !=0:
-                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']                
+                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']               
                     line = subwayDetails[5].split("'")[1]
                     if item == 'Red Line Subway towards Ashmont':
                         lineList = routeorders['Red Ashmont']
                     elif line =='Red Line':
                         lineList= routeorders['Red Braintree']
                     else:
-                        lineList = routeorders[line.split()[0]]
+                        lineList = routeorders[line]
                 elif len(re.findall(r'Light rail towards',item)) !=0:
                     line = subwayDetails[3].split("'")[0]
                     lineList = routeorders[line]
@@ -291,3 +290,4 @@ def return_travel_info(origin, destination):
     print(destination)
     printdict = process_directions(origin,destination)
     return printdict
+return_travel_info("DavisSquareBoston","FitchbergBoston")
