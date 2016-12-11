@@ -194,7 +194,7 @@ def process_directions(origin,destination):
         arrivaltime = txt['legs'][0]['arrival_time']['text']
         departtime = txt['legs'][0]['departure_time']['text']
         duration = txt['legs'][0]['duration']['text']
-        directionsraw = str(txt2).encode('utf-8').split('html_instructions')[1:]
+        directionsraw = str(txt2).split('html_instructions')[1:]
         directions_cleaner = ""
         for item in directionsraw:
             if len(re.findall(r'Subway toward',item)) !=0 or len(re.findall(r'Light rail towards',item)) !=0 \
@@ -207,7 +207,7 @@ def process_directions(origin,destination):
                 getOnAt= subwayDetails[1].split("'")[1]
                 getOffAt = subwayDetails[2].split("'")[1]
                 if len(re.findall(r'Subway toward',item)) !=0:
-                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']               
+                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']                
                     line = subwayDetails[5].split("'")[1]
                     if item == 'Red Line Subway towards Ashmont':
                         lineList = routeorders['Red Ashmont']
@@ -291,4 +291,3 @@ def return_travel_info(origin, destination):
     print(destination)
     printdict = process_directions(origin,destination)
     return printdict
-return_travel_info("DavisSquareBoston","FitchbergBoston")
