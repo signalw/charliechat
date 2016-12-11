@@ -2,8 +2,6 @@ import requests
 from CharlieChat import settings
 import re
 
-GOOGLE_API_KEY ='AIzaSyDoIcIWHO6WZ9XZhIEU7VOQNA4ZcIIVDbw'
-
 #ticket price variables. assumes no charlie-card
 #most prices pertain to charlie card zones.  '1A' is the price to go between two '1A' stops only
 #the whole numbers are prices to go between a 1A stop to the listed zone, the keys that end
@@ -120,9 +118,9 @@ routeorders = {'Green Line B': ['Lechmere', 'Science Park', 'North Station', 'Ha
 #put parameters in URL path
 def buildGoogleMapsURL(origin, destination, mode ='transit'):
     url = "https://maps.googleapis.com/maps/api/directions/json"
-    params = {'origin':origin,
-    'destination':destination,
-    'key':GOOGLE_API_KEY,
+    params = {'origin':origin.replace(' ','+'),
+    'destination':destination.replace(' ','+'),
+    'key':settings.GOOGLE_API_KEY,
     'mode':mode,
 	}
      
@@ -203,8 +201,9 @@ def process_directions(origin,destination):
                 or len(re.findall(r'Train towards',item)) !=0 or len(re.findall(r'Bus towards',item)) !=0:
                  
                 lineList = []            
+                print(item)
                 subwayToward = item[:item.find('distance')][4:-3]
-                subwayDetails = item.split("u'name': u'")   
+                subwayDetails = item.split("'name': '")   
                 getOnAt= subwayDetails[1].split("'")[0]
                 getOffAt = subwayDetails[2].split("'")[0]
                 if len(re.findall(r'Subway toward',item)) !=0:
@@ -288,5 +287,7 @@ def process_directions(origin,destination):
     return output_dict
 
 def return_travel_info(origin, destination): 
+    print(origin)
+    print(destination)
     printdict = process_directions(origin,destination)
     return printdict

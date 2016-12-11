@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from .utils.queryGoogleForDirections import getPath
+from .utils.queryGoogleForDirectionsv3 import return_travel_info
 from .utils.apiai import *
 
 def index(request):
@@ -23,7 +23,7 @@ def index(request):
                                                 ["fulfillment"]["speech"]+'\n'
             else:
                 address1 = validate(address1)
-                request.session['_messages'] += getPath(address1, address2)+'\n'
+                request.session['_messages'] += return_travel_info(address1, address2)+'\n'
             return HttpResponseRedirect(reverse('index'))
         else:
             # if intent is not direction
