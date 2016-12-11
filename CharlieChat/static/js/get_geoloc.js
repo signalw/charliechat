@@ -1,3 +1,9 @@
+$(document).ready(function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    }
+});
+
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition);
@@ -8,11 +14,10 @@ function getLocation() {
 }
 
 function showPosition(position) {
-    document.getElementById("geo_loc").innerHTML =
-    "Latitude: " + position.coords.latitude +
-    "<br>Longitude: " + position.coords.longitude;
+    document.getElementById("geo_loc").value =
+    position.coords.latitude + "," + position.coords.longitude;
 }
 
 function clearLocation() {
-  document.getElementById("geo_loc").innerHTML = "";
+  document.getElementById("geo_loc").value = "";
 }

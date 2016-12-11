@@ -14,6 +14,7 @@ You are using as a public user. <a href="/login">Sign in</a>.
 
 <form method="post">
   {% csrf_token %}
+  <input id="geo_loc" name="geo_loc">
   <div class="row">
       <div class="two columns">
         <input class="button u-full-width" type="button" value="speak" id="speakInput">
@@ -22,7 +23,7 @@ You are using as a public user. <a href="/login">Sign in</a>.
         <input class="u-full-width" id="userInputBox" name="query" type="text" placeholder="Say (or type) something!">
       </div>
       <div class="two columns">
-        <input class="button-primary u-full-width" type="submit" value="Submit">
+        <input class="button-primary u-full-width" type="submit" value="Submit" onclick="getLocation()">
       </div>
   </div>
 </form>
@@ -34,6 +35,5 @@ You are using as a public user. <a href="/login">Sign in</a>.
 <p>Click the button below to get current coordinates.</p>
 <button onclick="getLocation()">Where am I?</button>
 <button onclick="clearLocation()">Clear</button>
-<p id="geo_loc"></p>
 
 {% endblock content %}

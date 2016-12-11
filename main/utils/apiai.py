@@ -18,7 +18,8 @@ def get_addresses_from_response(response):
 def validate(address):
     curr = ["here", "current location", "current place"]
     if not address or address.lower() in curr:
-        return "45Hawthornestsomerville"
+        # return the user's current location
+        return "current_loc"
     return address
 
 def get_intent_from_response(response):

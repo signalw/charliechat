@@ -13,6 +13,8 @@ def index(request):
             {'messages': request.session['_messages']})
     else:
         query = request.POST.get('query')
+        geo_loc = request.POST.get('geo_loc')
+
         request.session['_messages'] += query + '\n'
         response = apiai_request(query)
         if get_intent_from_response(response) == "direction":
@@ -22,8 +24,9 @@ def index(request):
                 request.session['_messages'] += response["result"] \
                                                 ["fulfillment"]["speech"]+'\n'
             else:
-                address1 = validate(address1)
-                request.session['_messages'] += return_travel_info(address1, address2)+'\n'
+                if (validate(address1) is "current_loc"):
+                    address1 = geo_loc
+                request.session['_messages'] += str(return_travel_info(address1, address2))+'\n'
             return HttpResponseRedirect(reverse('index'))
         else:
             # if intent is not direction
