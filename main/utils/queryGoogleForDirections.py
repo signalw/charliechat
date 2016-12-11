@@ -7,8 +7,8 @@ from CharlieChat import settings
 #origin = input ("enter an origin between paren\n")
 #destination = input("enter a destination between paren \n")
 def getPath(orig, dest):
-	origin = orig #"45Hawthornestsomerville"
-	destination = dest #"Downtowncrossing"
+	origin = str(orig.replace(" ","+")) #"45Hawthornestsomerville"
+	destination = str(dest.replace(" ","+")) #"Downtowncrossing"
 
 	#put parameters in URL path
 	url = "https://maps.googleapis.com/maps/api/directions/json"
@@ -20,7 +20,7 @@ def getPath(orig, dest):
 
 	response = requests.get(url,params=params)
 	r = response.json() # gets us a dictionary
-	print(r)
+
 	if len(r['routes']) > 0:
 		txt = r['routes'][0]
 		arrivaltime = txt['legs'][0]['arrival_time']['text']
