@@ -11,6 +11,9 @@ def index(request):
     if request.method == "GET":
         return render(request, 'index.html',
             {'messages': request.session['_messages']})
+    elif request.method == "POST" and request.POST.get('clear_messages'):
+        request.session['_messages'] = "Conversations will be displayed below:\n"
+        return HttpResponseRedirect(reverse('index'))
     else:
         query = request.POST.get('query')
         geo_loc = request.POST.get('geo_loc')
