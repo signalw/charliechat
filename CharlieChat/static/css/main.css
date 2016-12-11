@@ -1,7 +1,50 @@
+/* speak button */
 input.disabled-button, button.disabled-button {
     background-color: #ccc;
 }
 input.disabled-button:hover, button.disabled-button:hover {
     border: 1px solid #bbb;
     color:#555;
+}
+
+/* layout */
+html, body {
+    height:100%;
+    overflow: hidden;
+}
+
+#messages {
+    min-height:10em;
+    overflow-y:scroll
+}
+
+/* chat box style */
+#messages {
+    background-color: #ffffff;
+}
+
+.dialog-bubble {
+    margin:1.5em;
+}
+
+.inner-bubble {
+    max-width:65%;
+    padding:1em;
+}
+
+.charliechat-msg {
+    color:#111;
+}
+
+.charliechat-msg .inner-bubble {
+    background-color: #ccc;
+}
+
+.user-msg {
+    color:#111;
+}
+
+.user-msg .inner-bubble {
+    background-color: #33C3F0;
+    margin-left:40%;
 }

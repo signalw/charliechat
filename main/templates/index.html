@@ -1,18 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3>
-  Hello CharlieChat!
-</h3>
+<div id="messages">
+  {% for message in messages %}
+  <div class="dialog-bubble {{message.author}}-msg"><div class="inner-bubble">{{message.msg}}</div></div>
+  {% endfor %}
+</div>
 
 <!-- test_login -->
+<form method="post" id="queryForm">
 {% if request.user.is_authenticated %}
 Hi '{{ request.user.username }}' You are logged in now.<a href="/logout">Sign out</a>
 {% else %}
 You are using as a public user. <a href="/login">Sign in</a>.
 {% endif %}
 
-<form method="post">
   {% csrf_token %}
   <input id="geo_loc" name="geo_loc" hidden>
   <div class="row">
@@ -29,7 +31,5 @@ You are using as a public user. <a href="/login">Sign in</a>.
   <!-- clear session -->
   <input class="button-primary u-full-width" name="clear_messages" type="submit" value="Clear Messages">
 </form>
-
-<pre>{{ messages }}</pre>
 
 {% endblock content %}

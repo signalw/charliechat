@@ -5,6 +5,15 @@ function renableButton(buttonId) {
     $(buttonId).prop('disabled',false).removeClass('disabled-button');
 }
 
+function resizeMessages() {
+    $('#messages').height($(window).height() - $('#queryForm').height())
+}
+
+function scrollMessages() {
+    var d = $('#messages');
+    d.scrollTop(d.prop("scrollHeight"));
+}
+
 if (!('webkitSpeechRecognition' in window)) {
     disableButton('#speakInput');
 }
@@ -42,3 +51,12 @@ $('body').on('click','#speakInput',function() {
     final_transcript = '';
     recognition.start();
 });
+
+$(document).ready(function() {
+    resizeMessages();
+    scrollMessages();
+})
+$(window).resize(function() {
+    resizeMessages();
+    scrollMessages();
+})
