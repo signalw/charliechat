@@ -12,7 +12,7 @@
 <!-- test_login -->
 <form method="post" id="queryForm">
 {% if request.user.is_authenticated %}
-Hi '{{ request.user.username }}' You are logged in now.<a href="/logout">Sign out</a>
+Hi '{{ request.user.username }}' You are logged in now.<a href="/settings">Settings</a><a href="/logout">Sign out</a>
 {% else %}
 You are using as a public user. <a href="/login">Sign in</a>.
 {% endif %}
