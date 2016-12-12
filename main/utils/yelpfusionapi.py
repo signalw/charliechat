@@ -14,7 +14,7 @@ import requests
 import sys
 import urllib
 import itertools
-
+from CharlieChat import settings
 
 # This client code can run on Python 2.x or 3.x.  Your imports can be
 # simpler if you only need one of those.
@@ -33,8 +33,8 @@ except ImportError:
 # OAuth credential placeholders that must be filled in by users.
 # You can find them on
 # https://www.yelp.com/developers/v3/manage_app
-CLIENT_ID = 'jlFyKyAo15RPiGx3sOJrWQ'
-CLIENT_SECRET = 'z9KsqHuvkadpF6eG8JYZClvaVniZEwzAOlbRHEXXBHht2w74c05xeD2iHlSweDnp'
+CLIENT_ID = settings.YELP_CLIENT_ID
+CLIENT_SECRET = settings.YELP_CLIENT_SECRET
 
 
 # API constants, you shouldn't have to change these.

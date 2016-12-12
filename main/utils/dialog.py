@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 
 from .queryGoogleForDirectionsv5 import return_travel_info
 from .apiai import *
+from .yelpfusionapi import *
 import json, re
 
 from random import randint
@@ -72,6 +73,7 @@ def assemble_instructions_map(segments):
     return code
 
 def decide_intent(intent,response,request,query,geo_loc):
+    #TODO: may need to break down into separate methods
     # intent is to navigate
     if intent == "direction":
         address1, address2 = get_addresses_from_response(response)
@@ -91,12 +93,12 @@ def decide_intent(intent,response,request,query,geo_loc):
                 request.session['_messages'].append({'author':'charliechat', \
                     'msg':"Arrival time is {} if you leave at {}.".format(info_dict['MBTA arrival time'],info_dict['MBTA depart time'])})
                 request.session['_messages'].append(cc_msg(assemble_instructions_map(info_dict['Route segments'])))
-        
+
             request.session['_historyQueries'].append(info_dict)
-        
+
         return HttpResponseRedirect(reverse('index'))
     # get the cost
-    elif intent == "getCost":       
+    elif intent == "getCost":
         # if asking for fare to a place
         if response['result']['parameters']['address2'] != '':
             address1, address2 = get_addresses_from_response(response)
@@ -118,6 +120,12 @@ def decide_intent(intent,response,request,query,geo_loc):
             # remember unfinished so agree intent is handled properly later
             request.session['_unfinished']['getCost'] = 'farBack'
 
+        return HttpResponseRedirect(reverse('index'))
+    elif intent == "restaurant":
+        businesses = query_multiterm(["food"], geo_loc, '3')
+        parsed = parseResponses(businesses)
+        candidates = [name for term in parsed for name in parsed[term]]
+        request.session['_messages'].append(cc_msg("Here's what I found: "+",".join(candidates)))
         return HttpResponseRedirect(reverse('index'))
     # unknown intent
     else:
