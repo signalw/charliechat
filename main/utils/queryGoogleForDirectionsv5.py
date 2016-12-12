@@ -7,7 +7,9 @@ import re
 #the whole numbers are prices to go between a 1A stop to the listed zone, the keys that end
 #in .5 are inter-zone prices. So if going from zone 7 to zone 5, the price will be the value that matches
 #|7-5\+.5 = 2.5
-price_dict = {'tram':2.75,'subway':2.75,'bus':1.70,'1A':2.25,1:6.25,1.5:2.75,2:6.75,2.5:3.25,3:7.50,3.5:3.50,4:8.25,4.5:4.00,5:9.25,5.5:4.50,6:10.00,6.5:5.00,7:10.50,7.5:5.50,8:11.50,8.5:6.00,9:12.00,9.5:6.50,10:12.50,10.5:6.50}
+price_dict = {'tram':2.75,'subway':2.75,'bus':1.70,'inner_express':4,'outer_express':5.25'1A':2.25,1:6.25,1.5:2.75,2:6.75,2.5:3.25,3:7.50,3.5:3.50,4:8.25,4.5:4.00,5:9.25,5.5:4.50,6:10.00,6.5:5.00,7:10.50,7.5:5.50,8:11.50,8.5:6.00,9:12.00,9.5:6.50,10:12.50,10.5:6.50}
+inner_express = [170, 325, 326, 351, 424, 426,428, 434, 448, 449, 450, 459, 501, 502, 504, 553, 554, 556,  558]
+outer_express = [352,354,505]
 #to help with pricing
 zone_dict ={"South Station":"1A","JFK/UMass":"1A","Quincy Center":1,\
     "Weymouth Landing/East Braintree":2,"East Weymouth":2,"West Hingham":3,\
@@ -279,7 +281,14 @@ def process_directions(origin,destination):
                         MBTA_trip_price = MBTA_trip_price + price_dict[abs(onZone-offZone)+.5]
                 else:
                     # silver line is free!
-                    if 'SL' not in transit['line']['short_name']:
+                    short_name = leg['transit_details']['line']['short_name']
+                    if 'SL' in short_name:
+                        MBTA_trip_price += 0
+                    elif short_name in inner_express:
+                        MBTA_trip_price += price_dict[inner_express]
+                    elif short_name in outer_express:
+                        MBTA_trip_price += price_dict[outer_express]
+                    else:
                         MBTA_trip_price += price_dict[mode]
    
 
