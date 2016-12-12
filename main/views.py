@@ -3,7 +3,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from .utils.dialog import *
+from .models import Profile, Query
 
 FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
 
@@ -33,7 +35,11 @@ def index(request):
         geo_loc = request.POST.get('geo_loc')
 
         request.session['_messages'].append({'author':'user','msg':query})
-
+        q = Query()
+        q.user = request.user
+        q.raw_query = query
+        q.add_date = timezone.now()
+        q.save()
         dialog_flow(request,query,geo_loc)
         return HttpResponseRedirect(reverse('index'))
 
