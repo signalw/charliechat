@@ -431,7 +431,7 @@ def process_directions(origin,destination):
         output_dict['MBTA directions'] = directions_cleaner
         output_dict['MBTA depart time']= departtime
         output_dict['MBTA arrival time'] = arrivaltime
-        output_dict['MBTA duration']= ,duration
+        output_dict['MBTA duration']= duration
         output_dict['MBTA alerts']= warning
         output_dict['MBTA price']= MBTA_trip_price
         output_dict['Uber price'] = uber_price
