@@ -3,22 +3,27 @@
 {% block content %}
 <div class="aboutContent">
 <h1>About CharlieChat</h1>
-<p>CharlieChat is a web application</p>
+<p>CharlieChat is a web application that learns about you and helps you navigate the Greater Boston area, providing suggestions, reminders, and recommendations when relevant. It is a group final project for Marie Meteer's Automated Speech Recognition class at Brandeis University.</p>
 
 <h2>How to use (for AVIOS)</h2>
 <p>The <a href="/">main app</a> is simple to operate. The majority of the screen is dedicated to a log of the conversations you've had with CharlieChat. Your input is in blue and aligned to the right, the app's in gray and aligned to the left. At the bottom is where you interact with the app. You can type queries in the text box and submit or hit &lsquo;speak&rsquo; and have it put what you say into the text box.</p>
 <p>Beneath the text box is a checkbox. The default checked means that once you finish speaking, it will submit your query automatically. To change this functionality and let you edit the recognition results, simply uncheck the box.</p>
-<p>The button at the very bottom lets you clear the messages from the chat log at the top. It will also delete your message history!</p>
+<p>The button at the very bottom lets you clear the messages from the chat log at the top. It will also delete your message history and any unfinished goals!</p>
 
 <h3>Limitations</h3>
 <ul>
     <li>The &lsquo;speak&rsquo; button will be grayed out in the browsers it doesn&rsquo;t support, which currently is every browser other than Chrome (desktop and Android) and Opera (desktop).</li>
     <li>You&rsquo;ll need an Internet connection to continue making queries.</li>
+    <li>On initial startup, the browser should ask if it can use your current location. If you decline this, the app will work as long as you specify starting locations</li>
+    <li>Similarly, the app should ask for permission to use your microphone the first time you press the &lsquo;speak&rsquo; button and it might be necessary to press the button a second time after giving permission</li>
+    <li>The application will work after a fashion if locations not in the greater Boston area are specified, but for ideal use any places mentioned are in the greater Boston area and accessible by public transportation.</li>
 </ul>
 
 <h3>Accounts</h3>
 
-<h2>Example Dialogs</h2>
+<h2>Functionality and example dialogs</h2>
+<p>In addition to asking about how to get from one place to another, you can also ask about the cost of getting between places and the length of time. Omitting a start location assumes the current location is the starting point.</p>
+<p>The app does understand context and takes into account your history. You can ask how to get to certain locations and follow up with a question about the cost and the amount of time it will take and the conversation will proceed naturally (or start out with asking how much or how long and see where things lead). The app will ask for clarification at appropriate moments.</p>
 
 <h2>Team members</h2>
 <dl>

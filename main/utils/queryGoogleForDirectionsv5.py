@@ -119,10 +119,12 @@ routeorders = {'Green Line B': ['Lechmere', 'Science Park', 'North Station', 'Ha
 #put parameters in URL path
 def buildGoogleMapsURL(origin, destination, mode ='transit'):
     url = "https://maps.googleapis.com/maps/api/directions/json"
-    params = {'origin':origin.replace(' ','+'),
-    'destination':destination.replace(' ','+'),
-    'key':settings.GOOGLE_API_KEY,
-    'mode':mode,
+    params = {
+        'origin':origin.replace(' ','+'),
+        'destination':destination.replace(' ','+'),
+        'key':settings.GOOGLE_API_KEY,
+        'mode':mode,
+        'region':'us'
 	}
 
     response = requests.get(url, params=params)

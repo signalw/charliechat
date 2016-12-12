@@ -22,6 +22,10 @@ def index(request):
     # clear messages
     elif request.method == "POST" and request.POST.get('clear_messages'):
         request.session['_messages'] =  [msg('charliechat',"That's all gone!")]
+        request.session['_historyQueries'] = []
+        request.session['_historyIntents'] = []
+        request.session['_historyDestinations'] = []
+        request.session['_unfinished'] = {}
         return HttpResponseRedirect(reverse('index'))
     # dialog time
     else:
