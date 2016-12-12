@@ -122,7 +122,7 @@ def buildGoogleMapsURL(origin, destination, mode ='transit'):
     'key':settings.GOOGLE_API_KEY,
     'mode':mode,
 	}
-     
+
     response = requests.get(url, params=params)
     r = response.json()
     return r
@@ -131,8 +131,8 @@ def buildAlertsURL(stop):
     url = "http://realtime.mbta.com/developer/api/v2/alertsbystop"
     params = {'stop':stop,
     'include_access_alerts':'false',
-    'api_key':'xk7jp6dSYEeidJi0P8sBcQ',	
-    'format':'json',	
+    'api_key':'xk7jp6dSYEeidJi0P8sBcQ',
+    'format':'json',
     'include_service_alerts':'true',
     }
     response = requests.get(url,params=params)
@@ -147,7 +147,7 @@ def getUberPriceTime(start_lat, start_long, end_lat, end_long):
      'end_latitude':start_lat,
      'end_longitude':start_long,
      'Accept-Language': 'en_US',
-	'server_token':'bEcr6qr2ggY-fVYXr0uump4AdxMLNZmCFvyJwJ-i',	
+	'server_token':'bEcr6qr2ggY-fVYXr0uump4AdxMLNZmCFvyJwJ-i',
 	'Content-Type': 'application/json',
 	}
     price = requests.get(url,params=params)
@@ -155,16 +155,16 @@ def getUberPriceTime(start_lat, start_long, end_lat, end_long):
     time = requests.get(url2,params=params)
     t = time.json()
     return p,t
-        
-    
-    
-    
+
+
+
+
 def process_directions(origin,destination):
-    output_dict = {}  
+    output_dict = {}
     MBTA_trip_price = 0
 
     txt2 = buildGoogleMapsURL(origin, destination)
-    
+
     if txt2['routes'] == []:
         output_dict['MBTA directions'] = 'Directions not found'
         output_dict['MBTA depart time']= 'Directions not found'
@@ -180,13 +180,13 @@ def process_directions(origin,destination):
         txt = txt2['routes'][0]
         start_lat = txt['legs'][0]['start_location']['lat']
         start_lng = txt['legs'][0]['start_location']['lng']
-        
+
         end_lat = txt['legs'][0]['end_location']['lat']
         end_lng = txt['legs'][0]['end_location']['lng']
 
         #price and time for uberx. change index to get different uber prices
         p,t = getUberPriceTime(start_lat, start_lng,end_lat,end_lng)
-        uber_price = p['prices'][1]['estimate']  
+        uber_price = p['prices'][1]['estimate']
         uber_time = t['times'][1]['estimate']
         #used for uber duration
         drive_duration = buildGoogleMapsURL(origin, destination, mode = 'driving')['routes'][0]['legs'][0]['duration']['text']
@@ -198,16 +198,16 @@ def process_directions(origin,destination):
         for item in directionsraw:
             if len(re.findall(r'Subway toward',item)) !=0 or len(re.findall(r'Light rail towards',item)) !=0 \
                 or len(re.findall(r'Train towards',item)) !=0 or len(re.findall(r'Bus towards',item)) !=0:
-                 
-                lineList = []            
+
+                lineList = []
           #      print(item)
                 subwayToward = item[:item.find('distance')][4:-3]
-                subwayDetails = item.split("'name'")  
+                subwayDetails = item.split("'name'")
                 getOnAt= subwayDetails[1].split("'")[1]
                 getOffAt = subwayDetails[2].split("'")[1]
                 if len(re.findall(r'Subway toward',item)) !=0:
-                    MBTA_trip_price = MBTA_trip_price + price_dict['subway'] 
-                    
+                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']
+
                     line = subwayDetails[5].split("'")[1]
                     if item == 'Red Line Subway towards Ashmont':
                         lineList = routeorders['Red Ashmont']
@@ -245,7 +245,7 @@ def process_directions(origin,destination):
                             MBTA_trip_price = MBTA_trip_price + price_dict[offZone]
                     else:
                         MBTA_trip_price = MBTA_trip_price + price_dict[abs(onZone-offZone)+.5]
-                
+
                 warning = ''
                 alertdict ={}
                 look = False
@@ -271,11 +271,11 @@ def process_directions(origin,destination):
                         if look ==True:
                             if lineList[i] in alertdict:
                                 alertdict[lineList[i]] = alertnames[lineList[i]]
-                            
+
                 for stop in alertdict:
 
                      alert2 = buildAlertsURL(alertnames[stop])
-                     
+
                      if alert2['alerts'] ==[]:
                          pass
                      else:
@@ -283,11 +283,11 @@ def process_directions(origin,destination):
                 directions_cleaner = directions_cleaner+'go to '\
                     +getOnAt+'\ntake '+line+' '+subwayToward+'\nget off at '+getOffAt+'\n'
             else:
-                
+
                 directions_cleaner = directions_cleaner + item[:item.find('distance')][4:-3] + "\n"
-        
+
         directions_cleaner = re.sub(r'(\<.*?\>)','',directions_cleaner)
-        
+
         output_dict['MBTA directions'] = directions_cleaner
         output_dict['MBTA depart time']= '\nleave at', departtime
         output_dict['MBTA arrival time'] ='\narrive by ', arrivaltime
@@ -299,9 +299,9 @@ def process_directions(origin,destination):
         output_dict['Uber duration']=drive_duration
     return output_dict
 
-def return_travel_info(origin, destination): 
+def return_travel_info(origin, destination):
     print(origin)
     print(destination)
     printdict = process_directions(origin,destination)
     return printdict
-return_travel_info("BrandeisBoston","Fitchberg")
+#return_travel_info("BrandeisBoston","Fitchberg")

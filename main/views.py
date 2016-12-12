@@ -31,3 +31,14 @@ def index(request):
 def about(request):
     if request.method == "GET":
         return render(request, 'about.html')
+
+def settings(request):
+    if request.method == "GET":
+        return render(request, 'settings.html', 
+            {'groups': ["-- select an option --","tourist","worker","student"]})
+    else:
+        u = request.user
+        u.profile.group = request.POST.get('group')
+        u.profile.bio = request.POST.get('bio')
+        u.save()
+        return HttpResponseRedirect(reverse('settings'))
