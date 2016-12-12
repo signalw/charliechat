@@ -249,6 +249,7 @@ def process_directions(origin,destination):
         for leg in txt['legs'][0]['steps']:
             segments.append(leg)
             text_directions.append(re.sub(r'(\<.*?\>)','',leg['html_instructions']))
+
             if leg['travel_mode'] == 'TRANSIT':
                 mode = leg['transit_details']['line']['vehicle']['type'].lower()
                 if mode == 'heavy_rail':
@@ -260,11 +261,13 @@ def process_directions(origin,destination):
                     #this guessing method could be improved
                     else:
                         onZone = "1A"
+                    
                     if getOffAt in zone_dict:
                         offZone = zone_dict[getOffAt]
                     else:
                         #this guessing method could be improved
                         offZone = "1A"
+                    
                     if onZone=="1A" and offZone =="1A":
                         MBTA_trip_price = MBTA_trip_price + price_dict['1A']
                     elif onZone=="1A" or offZone =="1A":
@@ -378,13 +381,6 @@ def process_directions(origin,destination):
         #         directions_cleaner = directions_cleaner + item[:item.find('distance')][4:-3] + "\n"
         
         # directions_cleaner = re.sub(r'(\<.*?\>)','',directions_cleaner)
-        
-        warning = ' '
-        output_dict['MBTA directions'] = text_directions
-        output_dict['MBTA depart time']= departtime
-        output_dict['MBTA arrival time'] =arrivaltime
-        output_dict['MBTA duration']= duration
-        output_dict['MBTA alerts']= warning
 
             #     warning = ''
             #     alertdict ={}
@@ -428,9 +424,10 @@ def process_directions(origin,destination):
 
         #directions_cleaner = re.sub(r'(\<.*?\>)','',directions_cleaner)
 
-        output_dict['MBTA directions'] = directions_cleaner
+        warning = ' '
+        output_dict['MBTA directions'] = text_directions
         output_dict['MBTA depart time']= departtime
-        output_dict['MBTA arrival time'] = arrivaltime
+        output_dict['MBTA arrival time'] =arrivaltime
         output_dict['MBTA duration']= duration
         output_dict['MBTA alerts']= warning
         output_dict['MBTA price']= MBTA_trip_price

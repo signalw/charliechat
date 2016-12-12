@@ -10,8 +10,10 @@ FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
 def index(request):
     request.session['_messages'] = request.session.get('_messages',
         [msg('charliechat',FIRST_TIME_MSG)]) # first time ever using
-    request.session['_historyQueries'] = request.session.get('_historyQueries',[])
+    request.session['_historyQueries'] = request.session.get('_historyQueries',[]) # previous query responses
     request.session['_historyIntents'] = request.session.get('_historyIntents',[])
+    request.session['_historyDestinations'] = request.session.get('_historyDestinations',[]) # previous places user wanted to go
+    request.session['_unfinished'] = request.session.get('_unfinished',{}) # queries that need more info to finish
 
     # display the page
     if request.method == "GET":
