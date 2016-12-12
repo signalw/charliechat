@@ -278,7 +278,9 @@ def process_directions(origin,destination):
                     else:
                         MBTA_trip_price = MBTA_trip_price + price_dict[abs(onZone-offZone)+.5]
                 else:
-                    MBTA_trip_price += price_dict[mode]
+                    # silver line is free!
+                    if 'SL' not in transit['line']['short_name']:
+                        MBTA_trip_price += price_dict[mode]
    
 
         directions_cleaner = ""
