@@ -15,7 +15,14 @@ html, body {
 
 #messages {
     min-height:10em;
-    overflow-y:scroll
+    overflow-y:scroll;
+    overflow-x:hidden;
+}
+
+.aboutContent {
+    min-height:10em;
+    overflow-y:scroll;
+    overflow-x:hidden;
 }
 
 /* chat box style */
@@ -28,8 +35,9 @@ html, body {
 }
 
 .inner-bubble {
-    max-width:65%;
+    max-width:75%;
     padding:1em;
+    word-wrap:break-word;
 }
 
 .charliechat-msg {
@@ -37,7 +45,7 @@ html, body {
 }
 
 .charliechat-msg .inner-bubble {
-    background-color: #ccc;
+    background-color: #eee;
 }
 
 .user-msg {
@@ -47,4 +55,9 @@ html, body {
 .user-msg .inner-bubble {
     background-color: #33C3F0;
     margin-left:40%;
+}
+
+/* routing styles */
+span.traveltime {
+    font-weight:bold;
 }

@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% autoescape off %}
 <div id="messages">
   {% for message in messages %}
   <div class="dialog-bubble {{message.author}}-msg"><div class="inner-bubble">{{message.msg}}</div></div>
   {% endfor %}
 </div>
+{% endautoescape %}
 
 <!-- test_login -->
 <form method="post" id="queryForm">

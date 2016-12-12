@@ -1,13 +1,13 @@
 import requests
 from CharlieChat import settings
+from datetime import datetime
 import re
 #ticket price variables. assumes no charlie-card
 #most prices pertain to charlie card zones.  '1A' is the price to go between two '1A' stops only
 #the whole numbers are prices to go between a 1A stop to the listed zone, the keys that end
 #in .5 are inter-zone prices. So if going from zone 7 to zone 5, the price will be the value that matches
 #|7-5\+.5 = 2.5
-price_dict = {'subway':2.75,'bus':1.70,'1A':2.25,1:6.25,1.5:2.75,2:6.75,2.5:3.25,3:7.50,3.5:3.50,4:8.25,4.5:4.00,5:9.25,5.5:4.50,\
-    6:10.00,6.5:5.00,7:10.50,7.5:5.50,8:11.50,8.5:6.00,9:12.00,9.5:6.50,10:12.50,10.5:6.50}
+price_dict = {'tram':2.75,'subway':2.75,'bus':1.70,'1A':2.25,1:6.25,1.5:2.75,2:6.75,2.5:3.25,3:7.50,3.5:3.50,4:8.25,4.5:4.00,5:9.25,5.5:4.50,6:10.00,6.5:5.00,7:10.50,7.5:5.50,8:11.50,8.5:6.00,9:12.00,9.5:6.50,10:12.50,10.5:6.50}
 #to help with pricing
 zone_dict ={"South Station":"1A","JFK/UMass":"1A","Quincy Center":1,\
     "Weymouth Landing/East Braintree":2,"East Weymouth":2,"West Hingham":3,\
@@ -175,6 +175,7 @@ def process_directions(origin,destination):
         output_dict['Uber price'] = 'Directions not found'
         output_dict['Uber driver arrival (sec)'] = 'Directions not found'
         output_dict['Uber duration'] = 'Directions not found'
+        output_dict['Route segments'] = 'Directions not found'
     #parse apart directions info
     else:
         txt = txt2['routes'][0]
@@ -186,47 +187,39 @@ def process_directions(origin,destination):
 
         #price and time for uberx. change index to get different uber prices
         p,t = getUberPriceTime(start_lat, start_lng,end_lat,end_lng)
-        uber_price = p['prices'][1]['estimate']  
-        uber_time = t['times'][1]['estimate']
-        #used for uber duration
-        drive_duration = buildGoogleMapsURL(origin, destination, mode = 'driving')['routes'][0]['legs'][0]['duration']['text']
-        arrivaltime = txt['legs'][0]['arrival_time']['text']
-        departtime = txt['legs'][0]['departure_time']['text']
+        drive_duration,uber_price,uber_time = ('','','')
+        if 'prices' not in p:
+            uber_price = p['prices'][1]['estimate']  
+            uber_time = t['times'][1]['estimate']
+            #used for uber duration
+            drive_duration = buildGoogleMapsURL(origin, destination, mode = 'driving')['routes'][0]['legs'][0]['duration']['text']
+        
         duration = txt['legs'][0]['duration']['text']
-        directionsraw = str(txt2).split('html_instructions')[1:]
-        directions_cleaner = ""
-        for item in directionsraw:
-            if len(re.findall(r'Subway toward',item)) !=0 or len(re.findall(r'Light rail towards',item)) !=0 \
-                or len(re.findall(r'Train towards',item)) !=0 or len(re.findall(r'Bus towards',item)) !=0:
-                 
-                lineList = []            
-          #      print(item)
-                subwayToward = item[:item.find('distance')][4:-3]
-                subwayDetails = item.split("'name'")  
-                print(subwayDetails)
-                getOnAt= subwayDetails[1].split("'")[1]
-                getOffAt = subwayDetails[2].split("'")[1]
-                if len(re.findall(r'Subway toward',item)) !=0:
-                    MBTA_trip_price = MBTA_trip_price + price_dict['subway'] 
-                    
-                    line = subwayDetails[5].split("'")[1]
-                    if item == 'Red Line Subway towards Ashmont':
-                        lineList = routeorders['Red Ashmont']
-                    elif line =='Red Line':
-                        lineList= routeorders['Red Braintree']
-                    else:
-                        lineList = routeorders[line]
-                elif len(re.findall(r'Light rail towards',item)) !=0:
-                    line = subwayDetails[3].split("'")[1]
-                    lineList = routeorders[line]
-                    MBTA_trip_price = MBTA_trip_price + price_dict['subway']
-                elif len(re.findall(r'Bus towards',item)) !=0:
-                    MBTA_trip_price = MBTA_trip_price + price_dict['bus']
-                    line= subwayDetails[4].split("'")[1]
 
-                #this one is commuter rail and does not include alerts
-                else:
-                    line= subwayDetails[5].split("'")[1]
+        # if arrival time given
+        if 'arrival_time' in txt['legs'][0]:
+            arrivaltime = txt['legs'][0]['arrival_time']['text']
+            departtime = txt['legs'][0]['departure_time']['text']
+        # compute it
+        else:
+            current_time = datetime.now()
+            d = datetime.strptime(duration)
+            print(d)
+
+        directionsraw = str(txt2).split('html_instructions')[1:]
+
+        segments = []
+        text_directions = []
+        MBTA_trip_price = 0.0
+        for leg in txt['legs'][0]['steps']:
+            segments.append(leg)
+            text_directions.append(re.sub(r'(\<.*?\>)','',leg['html_instructions']))
+            if leg['travel_mode'] == 'TRANSIT':
+                mode = leg['transit_details']['line']['vehicle']['type'].lower()
+                if mode == 'heavy_rail':
+                    getOffAt = leg['transit_details']['arrival_stop']['name']
+                    getOnAt = leg['transit_details']['departure_stop']['name']
+
                     if getOnAt in zone_dict:
                         onZone = zone_dict[getOnAt]
                     #this guessing method could be improved
@@ -246,58 +239,122 @@ def process_directions(origin,destination):
                             MBTA_trip_price = MBTA_trip_price + price_dict[offZone]
                     else:
                         MBTA_trip_price = MBTA_trip_price + price_dict[abs(onZone-offZone)+.5]
-                
-                warning = ''
-                alertdict ={}
-                look = False
-                for i in range(len(lineList)):
-                    if lineList[i] == getOnAt:
-                        if look == True:
-                            if lineList[i] in alertdict:
-                                alertdict[lineList[i]] = alertnames[lineList[i]]
-                            look = False
-                        else:
-                            look = True
-                            if lineList[i] in alertdict:
-                                alertdict[lineList[i]] =alertnames[lineList[i]]
-                    elif lineList[i]==getOffAt:
-                        if look ==True:
-                            if lineList[i] in alertdict:
-                                alertdict[lineList[i]] = alertnames[lineList[i]]
-                            look = False
-                        else:
-                            if lineList[i] in alertdict:
-                                alertdict[lineList[i]] = alertnames[lineList[i]]
-                    else:
-                        if look ==True:
-                            if lineList[i] in alertdict:
-                                alertdict[lineList[i]] = alertnames[lineList[i]]
-                            
-                for stop in alertdict:
+                else:
+                    MBTA_trip_price += price_dict[mode]
+   
 
-                     alert2 = buildAlertsURL(alertnames[stop])
-                     
-                     if alert2['alerts'] ==[]:
-                         pass
-                     else:
-                         warning = warning+'\nAlert at '+stop+': '+str(alert2['alerts'][0]['short_header_text'])
-                directions_cleaner = directions_cleaner+'go to '\
-                    +getOnAt+'\ntake '+line+' '+subwayToward+'\nget off at '+getOffAt+'\n'
-            else:
+        directions_cleaner = ""
+
+        # for item in directionsraw:
+        #     print(item)
+        #     if len(re.findall(r'Subway toward',item)) !=0 or len(re.findall(r'Light rail towards',item)) !=0 \
+        #         or len(re.findall(r'Train towards',item)) !=0 or len(re.findall(r'Bus towards',item)) !=0:
+                 
+        #         lineList = []            
+        #         #print(item)
+        #         subwayToward = item[:item.find('distance')][4:-3]
+        #         subwayDetails = item.split("'name'")  
+        #         #print(subwayDetails)
+        #         if len(subwayDetails) > 1:
+        #             getOnAt= subwayDetails[1].split("'")[1]
+        #             getOffAt = subwayDetails[2].split("'")[1]
+        #         else:
+        #             getOnAt = "didn't parse"
+        #             getOffAt = "didn't parse"
+        #             break
+        #         if len(re.findall(r'Subway toward',item)) !=0:
+        #             MBTA_trip_price = MBTA_trip_price + price_dict['subway'] 
+        #             line = subwayDetails[5].split("'")[1]
+        #             if item == 'Red Line Subway towards Ashmont':
+        #                 lineList = routeorders['Red Ashmont']
+        #             elif line =='Red Line':
+        #                 lineList= routeorders['Red Braintree']
+        #             else:
+        #                 print(subwayDetails)
+        #                 lineList = routeorders[line]
+        #         elif len(re.findall(r'Light rail towards',item)) !=0:
+        #             line = subwayDetails[3].split("'")[1]
+        #             lineList = routeorders[line]
+        #             MBTA_trip_price = MBTA_trip_price + price_dict['subway']
+        #         elif len(re.findall(r'Bus towards',item)) !=0:
+        #             MBTA_trip_price = MBTA_trip_price + price_dict['bus']
+        #             line= subwayDetails[4].split("'")[1]
+        #         #this one is commuter rail and does not include alerts
+        #         else:
+        #             line= subwayDetails[5].split("'")[1]
+        #             if getOnAt in zone_dict:
+        #                 onZone = zone_dict[getOnAt]
+        #             #this guessing method could be improved
+        #             else:
+        #                 onZone = "1A"
+        #             if getOffAt in zone_dict:
+        #                 offZone = zone_dict[getOffAt]
+        #             else:
+        #                 #this guessing method could be improved
+        #                 offZone = "1A"
+        #             if onZone=="1A" and offZone =="1A":
+        #                 MBTA_trip_price = MBTA_trip_price + price_dict['1A']
+        #             elif onZone=="1A" or offZone =="1A":
+        #                 if onZone != "1A":
+        #                     MBTA_trip_price = MBTA_trip_price + price_dict[onZone]
+        #                 else:
+        #                     MBTA_trip_price = MBTA_trip_price + price_dict[offZone]
+        #             else:
+        #                 MBTA_trip_price = MBTA_trip_price + price_dict[abs(onZone-offZone)+.5]
                 
-                directions_cleaner = directions_cleaner + item[:item.find('distance')][4:-3] + "\n"
+        #         warning = ''
+        #         alertdict ={}
+        #         look = False
+        #         for i in range(len(lineList)):
+        #             if lineList[i] == getOnAt:
+        #                 if look == True:
+        #                     if lineList[i] in alertdict:
+        #                         alertdict[lineList[i]] = alertnames[lineList[i]]
+        #                     look = False
+        #                 else:
+        #                     look = True
+        #                     if lineList[i] in alertdict:
+        #                         alertdict[lineList[i]] =alertnames[lineList[i]]
+        #             elif lineList[i]==getOffAt:
+        #                 if look ==True:
+        #                     if lineList[i] in alertdict:
+        #                         alertdict[lineList[i]] = alertnames[lineList[i]]
+        #                     look = False
+        #                 else:
+        #                     if lineList[i] in alertdict:
+        #                         alertdict[lineList[i]] = alertnames[lineList[i]]
+        #             else:
+        #                 if look ==True:
+        #                     if lineList[i] in alertdict:
+        #                         alertdict[lineList[i]] = alertnames[lineList[i]]
+                            
+        #         for stop in alertdict:
+
+        #              alert2 = buildAlertsURL(alertnames[stop])
+                     
+        #              if alert2['alerts'] ==[]:
+        #                  pass
+        #              else:
+        #                  warning = warning+'\nAlert at '+stop+': '+str(alert2['alerts'][0]['short_header_text'])
+        #         directions_cleaner = directions_cleaner+'go to '\
+        #             +getOnAt+'\ntake '+line+' '+subwayToward+'\nget off at '+getOffAt+'\n'
+        #     else:
+                
+        #         directions_cleaner = directions_cleaner + item[:item.find('distance')][4:-3] + "\n"
         
-        directions_cleaner = re.sub(r'(\<.*?\>)','',directions_cleaner)
+        # directions_cleaner = re.sub(r'(\<.*?\>)','',directions_cleaner)
         
-        output_dict['MBTA directions'] = directions_cleaner
-        output_dict['MBTA depart time']= '\nleave at', departtime
-        output_dict['MBTA arrival time'] ='\narrive by ', arrivaltime
-        output_dict['MBTA duration']= '\ntotal duration ',duration
-        output_dict['MBTA alerts']= 'warning, the following alerts exist"\n',warning
+        warning = ' '
+        output_dict['MBTA directions'] = text_directions
+        output_dict['MBTA depart time']= departtime
+        output_dict['MBTA arrival time'] =arrivaltime
+        output_dict['MBTA duration']= duration
+        output_dict['MBTA alerts']= warning
         output_dict['MBTA price']= MBTA_trip_price
         output_dict['Uber price'] = uber_price
         output_dict['Uber driver arrival (sec)'] = uber_time
         output_dict['Uber duration']=drive_duration
+        output_dict['Route segments']=segments
     return output_dict
 
 def return_travel_info(origin, destination): 

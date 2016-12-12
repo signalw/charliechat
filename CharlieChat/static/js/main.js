@@ -7,6 +7,7 @@ function renableButton(buttonId) {
 
 function resizeMessages() {
     $('#messages').height($(window).height() - $('#queryForm').height())
+    $('.aboutContent').height($(window).height() - $('.returnMain').height())
 }
 
 function scrollMessages() {

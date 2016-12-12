@@ -10,7 +10,9 @@ FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
 def index(request):
     request.session['_messages'] = request.session.get('_messages',
         [msg('charliechat',FIRST_TIME_MSG)]) # first time ever using
-    print(request.session['_messages'])
+    request.session['_historyQueries'] = request.session.get('_historyQueries',[])
+    request.session['_historyIntents'] = request.session.get('_historyIntents',[])
+
     # display the page
     if request.method == "GET":
         return render(request, 'index.html',
