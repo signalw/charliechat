@@ -12,7 +12,8 @@ FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
 INTENT_CLARIFICATION = ["That doesn't quite make sense, could you word that differently?",\
                         "I'm not sure what you mean. Could you say that again?"]
 TROUBLE = ["I seem to be having trouble, could you try again later?", "Uh oh, I'm having difficulties. Try again later.", \
-        "I can't seem to connect, try again some time later."]
+        "I can't seem to connect, try again some time later.", "Oh no, something's wrong on my end. Could you try again later?", \
+        'I don\'t seem to be working right now! Try something else, or try again later.']
 
 def msg(msg_type,message):
     return {'author':msg_type,'msg':message}
@@ -23,8 +24,8 @@ def cc_msg(message):
 def user_msg(message):
     return msg('user',message)
 
-def appendToDestHistory(request,dest):
-    request.session['_historyDestinations'].append(dest)
+def appendToDestHistory(request,start,dest):
+    request.session['_historyDestinations'].append((start,dest))
 
 def random_choice(responses):
     return responses[randint(0,len(responses) - 1 )]
@@ -76,23 +77,40 @@ def decide_intent(intent,response,request,query,geo_loc):
     if intent == "direction":
         address1, address2 = get_addresses_from_response(response)
         if not address2:
-            request.session['_messages'].append(cc_msg(response["result"] \
-                                            ["fulfillment"]["speech"]))
+            # if you've already asked things, assume the previous
+            lastQuery = request.session['_historyQueries'][-1]
+
+            if lastQuery['MBTA directions'] == 'Directions not found':
+                request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
+            else:
+                request.session['_messages'].append({'author':'charliechat', \
+                    'msg':"Arrival time is {} if you leave at {}.".format(lastQuery['MBTA arrival time'],lastQuery['MBTA depart time'])})
+                request.session['_messages'].append(cc_msg(assemble_instructions_map(lastQuery['Route segments'])))
         else:
+            info_dict = return_travel_info(address1,address2)
+            appendToDestHistory(request,address1,address2)
+            
             if (validate(address1) == "current_loc"):
                 address1 = geo_loc
-
-            appendToDestHistory(request,address2)
-            info_dict = return_travel_info(address1,address2)
-
+            
             if info_dict['MBTA directions'] == 'Directions not found':
-                request.session['_messages'].append(cc_msg('I don\'t seem to be working right now! Try something else, or try again later.'))
+                request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
             else:
                 request.session['_messages'].append({'author':'charliechat', \
                     'msg':"Arrival time is {} if you leave at {}.".format(info_dict['MBTA arrival time'],info_dict['MBTA depart time'])})
                 request.session['_messages'].append(cc_msg(assemble_instructions_map(info_dict['Route segments'])))
-        
+    
             request.session['_historyQueries'].append(info_dict)
+
+            # if they asked for the price previously, also give the price
+            if 'getCost' in request.session['_unfinished'] and request.session['_unfinished']['getCost'] == 'needTrip':
+                price = info_dict['MBTA price']
+                request.session['_messages'].append(cc_msg('And the total cost of this trip is ${0:.2f}.'.format(price)))
+                del request.session['_unfinished']['getCost']
+            elif 'lengthTime' in request.session['_unfinished'] and request.session['_unfinished']['lengthTime'] == 'needTrip':
+                duration = info_dict['MBTA duration']
+                request.session['_messages'].append(cc_msg('And the total duration of this trip would be {0}.'.format(duration)))
+                del request.session['_unfinished']['lengthTime']
         
         return HttpResponseRedirect(reverse('index'))
     # get the cost
@@ -100,7 +118,14 @@ def decide_intent(intent,response,request,query,geo_loc):
         # if asking for fare to a place
         if response['result']['parameters']['address2'] != '':
             address1, address2 = get_addresses_from_response(response)
-            price = return_travel_info(address1,address2)['MBTA price']
+            appendToDestHistory(request,address1,address2)
+            if (validate(address1) == "current_loc"):
+                address1 = geo_loc
+            
+            info_dict = return_travel_info(address1,address2)
+            request.session['_historyQueries'].append(info_dict)
+            price = info_dict['MBTA price']
+
             if price == 'Directions not found':
                 request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
             else:
@@ -113,10 +138,45 @@ def decide_intent(intent,response,request,query,geo_loc):
             destination = request.session['_historyDestinations'][-1]
             request.session['_messages'].append(cc_msg('Your trip to {0} is going to cost ${1:.2f} with an adult CharlieCard.'.format(destination,price)))
         # if it was a while back, ask if that's the one
-        elif 'direction' in request.session['_historyIntents']:
-            request.session['_messages'].append(cc_msg('It was back a bit, but do you mean the cost of your trip to {}?'.format(request.session['_historyDestinations'][-1])))
+        elif 'direction' in request.session['_historyIntents'] or 'lengthTime' in request.session['_historyIntents']:
+            request.session['_messages'].append(cc_msg('Do you mean the cost of your trip to {}?'.format(request.session['_historyDestinations'][-1][1])))
             # remember unfinished so agree intent is handled properly later
+            print(request.session['_unfinished'])
             request.session['_unfinished']['getCost'] = 'farBack'
+        else:
+            request.session['_messages'].append(cc_msg('From where to where?'))
+            request.session['_unfinished']['getCost'] = 'needTrip'            
+
+        return HttpResponseRedirect(reverse('index'))
+    # asked how long it takes to get somewhere
+    elif intent == "lengthTime":
+        # if they want duration to a specified place
+        if response['result']['parameters']['address2'] != '':
+            address1, address2 = get_addresses_from_response(response)
+            appendToDestHistory(request,address1,address2)
+            if (validate(address1) == "current_loc"):
+                address1 = geo_loc
+            info_dict = return_travel_info(address1,address2)
+            duration = info_dict['MBTA duration']
+            request.session['_historyQueries'].append(info_dict)
+            if duration == 'Directions not found':
+                request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
+            else:
+                if (validate(address1) == geo_loc):
+                    address1 = "where you currently are"
+                request.session['_messages'].append(cc_msg('It\'ll take you {0} to go from {1} to {2}.'.format(duration,address1,address2)))
+        # ask if they're referencing the last mentioned
+        elif 'direction' in request.session['_historyIntents'] or 'getCost' in request.session['_historyIntents']:
+            lastQuery = request.session['_historyDestinations'][-1]
+            a1 = lastQuery[0]
+            a2 = lastQuery[1]
+            if (validate(address1) == "current_loc"):
+                a1 = "where you are now"
+            request.session['_messages'].append(cc_msg('Do you mean between {} and {}?'.format(a1,a2)))
+            request.session['_unfinished']['lengthTime'] = 'farBack'  
+        else:
+            equest.session['_messages'].append(cc_msg('From where to where?'))
+            request.session['_unfinished']['lengthTime'] = 'needTrip'    
 
         return HttpResponseRedirect(reverse('index'))
     # unknown intent
@@ -139,7 +199,7 @@ def dialog_flow(request,query,geo_loc):
     # logic for first time use
     if len(request.session['_messages']) == 2 and request.session['_messages'][0] == cc_msg(FIRST_TIME_MSG):
         if intent == 'agree':
-            request.session['_messages'].append(cc_msg('Awesome, welcome! Are you interesting in getting any recommendations?'))
+            request.session['_messages'].append(cc_msg('Awesome, welcome! What do you want to know?'))
         elif intent == 'disagree':
             request.session['_messages'].append(cc_msg('Well hi! What can I do for you?'))
         else:
@@ -157,11 +217,17 @@ def dialog_flow(request,query,geo_loc):
                     if unfinished_request == 'getCost':
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('Got it!'))
-                            request.session['_unfinished'] = {}
                             price = request.session['_historyQueries'][-1]['MBTA price']
                             request.session['_messages'].append(cc_msg("The price was ${}.".format(price)))
                             request.session['_historyIntents'].append('getCost')
-
+                    elif unfinished_request == 'lengthTime':
+                        if request.session['_unfinished'][unfinished_request] == 'farBack':
+                            request.session['_messages'].append(cc_msg('On it!'))
+                            price = request.session['_historyQueries'][-1]['MBTA duration']
+                            request.session['_messages'].append(cc_msg("The trip will take {}.".format(duration)))
+                            request.session['_historyIntents'].append('lengthTrip')
+                    
+                    request.session['_unfinished'] = {}
 
                 # somehow, a bunch of unfinished queries
                 else:
@@ -171,6 +237,11 @@ def dialog_flow(request,query,geo_loc):
             if len(request.session['_unfinished']) == 0:
                 request.session['_messages'].append(cc_msg('Boo to you too.'))
             else:
-                pass
+                if len(request.session['_unfinished']) == 1:
+                    unfinished_request = list(request.session['_unfinished'].keys())[0]
+                    if unfinished_request == 'lengthTime':
+                        # not the last trip mentioned
+                        if request.session['_unfinished'][unfinished_request] == 'farBack':
+                            request.session['_messages'].append(cc_msg('Okay. What trip do you mean?'))
         else:
             decide_intent(intent,response,request,query,geo_loc)
