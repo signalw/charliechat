@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-
+from django.contrib.auth.decorators import login_required
 from .utils.dialog import *
 
 FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
@@ -41,9 +41,10 @@ def about(request):
     if request.method == "GET":
         return render(request, 'about.html')
 
+@login_required
 def settings(request):
     if request.method == "GET":
-        return render(request, 'settings.html', 
+        return render(request, 'settings.html',
             {'groups': ["-- select an option --","tourist","worker","student"]})
     else:
         u = request.user
