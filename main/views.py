@@ -9,14 +9,15 @@ FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
 
 def index(request):
     request.session['_messages'] = request.session.get('_messages',
-        [{'author':'charliechat','msg':FIRST_TIME_MSG}]) # first time ever using
+        [msg('charliechat',FIRST_TIME_MSG)]) # first time ever using
+    print(request.session['_messages'])
     # display the page
     if request.method == "GET":
         return render(request, 'index.html',
             {'messages': request.session['_messages']})
     # clear messages
     elif request.method == "POST" and request.POST.get('clear_messages'):
-        request.session['_messages'] =  [{'author':'charliechat','msg':"All gone!"}]
+        request.session['_messages'] =  [msg('charliechat',"That's all gone!")]
         return HttpResponseRedirect(reverse('index'))
     # dialog time
     else:
