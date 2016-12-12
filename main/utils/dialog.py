@@ -106,11 +106,11 @@ def decide_intent(intent,response,request,query,geo_loc):
             request.session['_historyQueries'].append(info_dict)
 
             # if they asked for the price previously, also give the price
-            if 'getCost' in request.session['_unfinished'] and request.session['_unfinished']['getCost'] == 'needTrip':
+            if 'getCost' in request.session['_unfinished']:
                 price = info_dict['MBTA price']
                 request.session['_messages'].append(cc_msg('And the total cost of this trip is ${0:.2f}.'.format(price)))
                 del request.session['_unfinished']['getCost']
-            elif 'lengthTime' in request.session['_unfinished'] and request.session['_unfinished']['lengthTime'] == 'needTrip':
+            elif 'lengthTime' in request.session['_unfinished']:
                 duration = info_dict['MBTA duration']
                 request.session['_messages'].append(cc_msg('And the total duration of this trip would be {0}.'.format(duration)))
                 del request.session['_unfinished']['lengthTime']
@@ -246,5 +246,9 @@ def dialog_flow(request,query,geo_loc):
                         # not the last trip mentioned
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('Okay. What trip do you mean?'))
+                    elif unfinished_request == 'getCost':
+                        # not the last trip mentioned
+                        if request.session['_unfinished'][unfinished_request] == 'farBack':
+                            request.session['_messages'].append(cc_msg('Okay. The cost from where to where?'))
         else:
             decide_intent(intent,response,request,query,geo_loc)
