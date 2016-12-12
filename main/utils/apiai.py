@@ -16,7 +16,7 @@ def get_addresses_from_response(response):
     return params["address1"], params["address2"]
 
 def validate(address):
-    curr = ["here", "current location", "current place"]
+    curr = ["here", "current location", "current place", "where i am", "where I am"]
     if not address or address.lower() in curr:
         # return the user's current location
         return "current_loc"

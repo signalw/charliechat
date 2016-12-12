@@ -108,11 +108,17 @@ def decide_intent(intent,response,request,query,geo_loc):
             # if they asked for the price previously, also give the price
             if 'getCost' in request.session['_unfinished']:
                 price = info_dict['MBTA price']
-                request.session['_messages'].append(cc_msg('And the total cost of this trip is ${0:.2f}.'.format(price)))
+                if price != 'Directions not found':
+                    request.session['_messages'].append(cc_msg('And the total cost of this trip is ${0:.2f}.'.format(price)))
+                else:
+                    request.session['_messages'].append(cc_msg('I can\'t seem to find any prices at the moment.'))
                 del request.session['_unfinished']['getCost']
             elif 'lengthTime' in request.session['_unfinished']:
                 duration = info_dict['MBTA duration']
-                request.session['_messages'].append(cc_msg('And the total duration of this trip would be {0}.'.format(duration)))
+                if duration != 'Directions not found':
+                    request.session['_messages'].append(cc_msg('And the total duration of this trip would be {0}.'.format(duration)))
+                else:
+                    request.session['_messages'].append(cc_msg('I can\'t seem to calculate the time right now.'))
                 del request.session['_unfinished']['lengthTime']
         
         return HttpResponseRedirect(reverse('index'))
