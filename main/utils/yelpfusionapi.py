@@ -33,8 +33,8 @@ except ImportError:
 # OAuth credential placeholders that must be filled in by users.
 # You can find them on
 # https://www.yelp.com/developers/v3/manage_app
-CLIENT_ID = 'jlFyKyAo15RPiGx3sOJrWQ'
-CLIENT_SECRET = 'z9KsqHuvkadpF6eG8JYZClvaVniZEwzAOlbRHEXXBHht2w74c05xeD2iHlSweDnp'
+CLIENT_ID = ''
+CLIENT_SECRET = ''
 
 
 # API constants, you shouldn't have to change these.
@@ -124,7 +124,7 @@ def search(bearer_token, term, location):
         'term': term.replace(' ', '+'),
 
         # "address, neighborhood, city, state or zip, optional country"
-        'location': location.replace(' ', '+'), 
+        'location': location.replace(' ', '+'),
         'limit': SEARCH_LIMIT,
         'open_now': "1",
         'radius': '4000',
@@ -171,10 +171,10 @@ def query_api(term, location, searchLim):
     print ("displaying info for top " + str(searchLim) + " results")
     for x in range(0, searchLim):
         business_id  = businesses[x]['id']
-        
+
         response = get_business(bearer_token, business_id)
 
-        business_distance = businesses[x]['distance'] 
+        business_distance = businesses[x]['distance']
         response['distance'] = business_distance #append distance to the response for later
         business_price = businesses[x].get('price','$')
         response['price'] = business_price
@@ -182,7 +182,7 @@ def query_api(term, location, searchLim):
         responseList.append(response)
         #pprint.pprint(response, indent=2)
     return responseList
-    
+
     # Original Yelp code sample:
     # business_id = businesses[0]['id']
 
