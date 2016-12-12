@@ -73,8 +73,11 @@ def assemble_instructions_map(segments):
     return code
 
 def decide_intent(intent,response,request,query,geo_loc):
+    if intent == "help":
+        request.session['_messages'].append(cc_msg("That's a great question! I do a lot of things."))
+        request.session['_messages'].append(cc_msg("Ask me how to get somewhere, how to get from point A to point B, how much that costs, or how long that'll take."))
     # intent is to navigate
-    if intent == "direction":
+    elif intent == "direction":
         address1, address2 = get_addresses_from_response(response)
         if not address2:
             # if you've already asked things, assume the previous
@@ -170,7 +173,7 @@ def decide_intent(intent,response,request,query,geo_loc):
             lastQuery = request.session['_historyDestinations'][-1]
             a1 = lastQuery[0]
             a2 = lastQuery[1]
-            if (validate(address1) == "current_loc"):
+            if (validate(a1) == "current_loc"):
                 a1 = "where you are now"
             request.session['_messages'].append(cc_msg('Do you mean between {} and {}?'.format(a1,a2)))
             request.session['_unfinished']['lengthTime'] = 'farBack'  
