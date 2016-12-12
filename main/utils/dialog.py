@@ -138,7 +138,7 @@ def decide_intent(intent,response,request,query,geo_loc):
         # if the previous request or the one before was a navigation, assume we're getting that cost
         elif request.session['_historyIntents'][-2] == "direction" or request.session['_historyIntents'][-3] == "direction":
             price = request.session['_historyQueries'][-1]['MBTA price']
-            destination = request.session['_historyDestinations'][-1]
+            destination = request.session['_historyDestinations'][-1][1]
             request.session['_messages'].append(cc_msg('Your trip to {0} is going to cost ${1:.2f} with an adult CharlieCard.'.format(destination,price)))
         # if it was a while back, ask if that's the one
         elif 'direction' in request.session['_historyIntents'] or 'lengthTime' in request.session['_historyIntents']:
