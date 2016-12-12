@@ -132,7 +132,7 @@ def decide_intent(intent,response,request,query,geo_loc):
             if price == 'Directions not found':
                 request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
             else:
-                if (validate(address1) == "current_loc"):
+                if (validate(address1) == geo_loc):
                     address1 = "your current location"
                 request.session['_messages'].append(cc_msg('It\'ll cost you ${0:.2f} to go from {1} to {2}.'.format(price,address1,address2)))
         # if the previous request or the one before was a navigation, assume we're getting that cost
@@ -226,7 +226,7 @@ def dialog_flow(request,query,geo_loc):
                     elif unfinished_request == 'lengthTime':
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('On it!'))
-                            price = request.session['_historyQueries'][-1]['MBTA duration']
+                            duration = request.session['_historyQueries'][-1]['MBTA duration']
                             request.session['_messages'].append(cc_msg("The trip will take {}.".format(duration)))
                             request.session['_historyIntents'].append('lengthTrip')
                     
