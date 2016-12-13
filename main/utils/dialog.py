@@ -55,8 +55,11 @@ def assemble_instructions_map(segments):
             mode = transit['line']['vehicle']['type'].lower()
 
             if mode == 'bus':
-                number = transit['line']['short_name']
-                code += "{} {} from {} for {} stops".format(number,step,depart,transit['num_stops'])
+                if 'short_name' in transit['line']:
+                    number = transit['line']['short_name']
+                    code += "{} {} from {} for {} stops".format(number,step,depart,transit['num_stops'])
+                else:
+                    code += "{} from {} for {} stops".format(step,depart,transit['num_stops'])
             elif mode == 'heavy_rail':
                 line = transit['line']['name']
                 code += "Take the {} from {} towards {} for {} stops".format(line,depart,transit['headsign'],transit['num_stops'])
