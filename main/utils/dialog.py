@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-
+from django.contrib.auth.models import AnonymousUser, User
 from .queryGoogleForDirectionsv5 import return_travel_info
 from .apiai import *
 from .yelpfusionapi import *
@@ -208,7 +208,10 @@ def dialog_flow(request,query,geo_loc):
 
     # logic for first time use
     if len(request.session['_messages']) == 2 and request.session['_messages'][0] == cc_msg(FIRST_TIME_MSG):
+        user = User.objects.get(username="admin") if isinstance(request.user, AnonymousUser) else request.user
         if intent == 'agree':
+            user.profile.group = 1
+            user.save()
             request.session['_messages'].append(cc_msg('Awesome, welcome! What do you want to know?'))
         elif intent == 'disagree':
             request.session['_messages'].append(cc_msg('Well hi! What can I do for you?'))
