@@ -95,6 +95,8 @@ def decide_intent(intent,response,request,query,geo_loc):
                 address1 = geo_loc
             
             info_dict = return_travel_info(address1,address2)
+            if address1 == geo_loc:
+                address1 = "current_loc" # make it easier to check historyDestinations later on
             appendToDestHistory(request,address1,address2)
 
             if info_dict['MBTA directions'] == 'Directions not found':
