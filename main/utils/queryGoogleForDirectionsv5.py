@@ -282,14 +282,18 @@ def process_directions(origin,destination):
                     else:
                         MBTA_trip_price = MBTA_trip_price + price_dict[abs(onZone-offZone)+.5]
                 else:
-                    # silver line is free!
-                    short_name = leg['transit_details']['line']['short_name']
-                    if 'SL' in short_name:
-                        MBTA_trip_price += 0
-                    elif short_name in inner_express:
-                        MBTA_trip_price += price_dict[inner_express]
-                    elif short_name in outer_express:
-                        MBTA_trip_price += price_dict[outer_express]
+                    #TODO: handle transfers
+                    
+                    if 'short_name' in leg['transit_details']['line']:
+                        short_name = leg['transit_details']['line']['short_name']
+                        if 'SL' in short_name:
+                            MBTA_trip_price += 0 # silver line is free
+                        elif short_name in inner_express:
+                            MBTA_trip_price += price_dict[inner_express]
+                        elif short_name in outer_express:
+                            MBTA_trip_price += price_dict[outer_express]
+                        else:
+                            MBTA_trip_price += price_dict[mode]
                     else:
                         MBTA_trip_price += price_dict[mode]
    

@@ -140,8 +140,11 @@ def decide_intent(intent,response,request,query,geo_loc):
         # if the previous request or the one before was a navigation, assume we're getting that cost
         elif request.session['_historyIntents'][-2] == "direction" or request.session['_historyIntents'][-3] == "direction":
             price = request.session['_historyQueries'][-1]['MBTA price']
-            destination = request.session['_historyDestinations'][-1][1]
-            request.session['_messages'].append(cc_msg('Your trip to {0} is going to cost ${1:.2f} with an adult CharlieCard.'.format(destination,price)))
+            if price != 'Directions not found':
+                destination = request.session['_historyDestinations'][-1][1]
+                request.session['_messages'].append(cc_msg('Your trip to {0} is going to cost ${1:.2f} with an adult CharlieCard.'.format(destination,(price))))
+            else:
+                request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
         # if it was a while back, ask if that's the one
         elif 'direction' in request.session['_historyIntents'] or 'lengthTime' in request.session['_historyIntents']:
             request.session['_messages'].append(cc_msg('Do you mean the cost of your trip to {}?'.format(request.session['_historyDestinations'][-1][1])))
@@ -231,13 +234,19 @@ def dialog_flow(request,query,geo_loc):
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('Got it!'))
                             price = request.session['_historyQueries'][-1]['MBTA price']
-                            request.session['_messages'].append(cc_msg("The price was ${}.".format(price)))
+                            if price != 'Directions not found':
+                                request.session['_messages'].append(cc_msg("The price was ${}.".format(price)))
+                            else:
+                                request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
                             request.session['_historyIntents'].append('getCost')
                     elif unfinished_request == 'lengthTime':
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('On it!'))
                             duration = request.session['_historyQueries'][-1]['MBTA duration']
-                            request.session['_messages'].append(cc_msg("The trip will take {}.".format(duration)))
+                            if duration != 'Directions not found':
+                                request.session['_messages'].append(cc_msg("The trip will take {}.".format(duration)))
+                            else:
+                                request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
                             request.session['_historyIntents'].append('lengthTrip')
 
                     request.session['_unfinished'] = {}
