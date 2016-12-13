@@ -15,6 +15,7 @@ INTENT_CLARIFICATION = ["That doesn't quite make sense, could you word that diff
 TROUBLE = ["I seem to be having trouble, could you try again later?", "Uh oh, I'm having difficulties. Try again later.", \
         "I can't seem to connect, try again some time later.", "Oh no, something's wrong on my end. Could you try again later?", \
         'I don\'t seem to be working right now! Try something else, or try again later.']
+RESTAURANTS = ["I can't seem to find anything matching that.","My restaurants finding tool is broken at the moment!"]
 
 def msg(msg_type,message):
     return {'author':msg_type,'msg':message}
@@ -75,6 +76,12 @@ def assemble_instructions_map(segments):
             code += " (<span class='traveltime'>{}</span>)</p>".format(segment['duration']['text'])
 
     return code
+
+def restaurant_listing(candidate):
+    """assemble code to display a restaurant"""
+    print(candidate)
+    return "<li>{}, {} stars, <span class='restaurantprice'>{}</span></li>".format(candidate['name'],candidate['rating'],candidate['price'])
+
 
 def decide_intent(intent,response,request,query,geo_loc):
     #TODO: may need to break down into separate methods
@@ -192,10 +199,33 @@ def decide_intent(intent,response,request,query,geo_loc):
 
         return HttpResponseRedirect(reverse('index'))
     elif intent == "restaurant":
-        businesses = query_multiterm(["food"], geo_loc, '3')
+        # determine parameters
+        loc,type_food = get_info_for_locations(response)
+        loc = validate(loc)
+
+        # user wants food near them
+        if not loc or loc == "current_loc":
+            businesses = query_multiterm(["food"], geo_loc, '5')
+            location_phrase = "near you"
+        # user wants food near a destination they specify
+        elif loc != "there":
+            businesses = query_multiterm(["food"],loc,'5')
+            appendToDestHistory(request,geo_loc,loc)
+            location_phrase = "around {}".format(loc)
+        # user wants food near the previously mentioned destination
+        else:
+            loc = request.session['_historyDestinations'][-1][1]
+            businesses = query_multiterm(["food"],loc,'5')
+            location_phrase = "near {}".format(loc)
+
         parsed = parseResponses(businesses)
-        candidates = [name for term in parsed for name in parsed[term]]
-        request.session['_messages'].append(cc_msg("Here's what I found: "+",".join(candidates)))
+        if len(parsed) > 0:
+            candidates = [parsed[term][name] for term in parsed for name in parsed[term]]
+            candidates_text = [restaurant_listing(candidate) for candidate in candidates]
+            request.session['_messages'].append(cc_msg("Here's what I found {0}: <ol>".format(location_phrase)+" ".join(candidates_text)+"</ol>"))
+        else:
+            request.session['_messages'].append(cc_msg(random_choice(RESTAURANTS)))
+       
         return HttpResponseRedirect(reverse('index'))
     # unknown intent
     else:

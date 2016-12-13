@@ -199,9 +199,10 @@ def query_multiterm(termList, location, searchLim):
     for term in termList:
         termResponses = []
         query = query_api(term,location, searchLim)
-        for r in query:
-            termResponses.append(r)
-        allResponses[term] = termResponses
+        if query is not None:
+            for r in query:
+                termResponses.append(r)
+            allResponses[term] = termResponses
 
     return allResponses
 

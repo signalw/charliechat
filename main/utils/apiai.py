@@ -15,12 +15,19 @@ def get_addresses_from_response(response):
     params = response["result"]["parameters"]
     return params["address1"], params["address2"]
 
+def get_info_for_locations(response):
+    """get required information to filter with yelp's API"""
+    params = response["result"]["parameters"]
+    return params["loc"],params["type"]
+
 def validate(address):
     curr = ["here", "current location", "current place", "where i am", "my current location"]
+    there = ["there", "that area", "yonder", "those parts"]
     if not address or address.lower() in curr:
         # return the user's current location
         return "current_loc"
-    print(address)
+    elif address in there:
+        return "there"
     return address
 
 def get_intent_from_response(response):

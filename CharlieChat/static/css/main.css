@@ -57,7 +57,10 @@ html, body {
     margin-left:40%;
 }
 
-/* routing styles */
+/* random styles */
 span.traveltime {
     font-weight:bold;
+}
+span.restaurantprice {
+    color:green;
 }
