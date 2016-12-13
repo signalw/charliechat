@@ -166,7 +166,6 @@ def getUberPriceTime(start_lat, start_long, end_lat, end_long):
 def process_directions(origin,destination):
     output_dict = {}
     MBTA_trip_price = 0
-
     txt2 = buildGoogleMapsURL(origin, destination)
 
     if txt2['routes'] == []:

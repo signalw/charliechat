@@ -34,7 +34,6 @@ def index(request):
     else:
         query = request.POST.get('query')
         geo_loc = request.POST.get('geo_loc')
-
         request.session['_messages'].append({'author':'user','msg':query})
 
         q = Query()

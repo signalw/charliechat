@@ -91,11 +91,11 @@ def decide_intent(intent,response,request,query,geo_loc):
                     'msg':"Arrival time is {} if you leave at {}.".format(lastQuery['MBTA arrival time'],lastQuery['MBTA depart time'])})
                 request.session['_messages'].append(cc_msg(assemble_instructions_map(lastQuery['Route segments'])))
         else:
-            info_dict = return_travel_info(address1,address2)
-            appendToDestHistory(request,address1,address2)
-
             if (validate(address1) == "current_loc"):
                 address1 = geo_loc
+            
+            info_dict = return_travel_info(address1,address2)
+            appendToDestHistory(request,address1,address2)
 
             if info_dict['MBTA directions'] == 'Directions not found':
                 request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
