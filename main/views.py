@@ -16,6 +16,7 @@ def index(request):
     request.session['_historyQueries'] = request.session.get('_historyQueries',[]) # previous query responses
     request.session['_historyIntents'] = request.session.get('_historyIntents',[])
     request.session['_historyDestinations'] = request.session.get('_historyDestinations',[]) # previous places user wanted to go
+    request.session['_historyYelp'] = request.session.get('_historyYelp',[])
     request.session['_unfinished'] = request.session.get('_unfinished',{}) # queries that need more info to finish
 
     # display the page
@@ -28,6 +29,7 @@ def index(request):
         request.session['_historyQueries'] = []
         request.session['_historyIntents'] = []
         request.session['_historyDestinations'] = []
+        request.session['_historyYelp'] = []
         request.session['_unfinished'] = {}
         return HttpResponseRedirect(reverse('index'))
     # dialog time
