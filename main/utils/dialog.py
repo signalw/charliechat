@@ -14,7 +14,7 @@ INTENT_CLARIFICATION = ["That doesn't quite make sense, could you word that diff
                         "I'm not sure what you mean. Could you say that again?"]
 TROUBLE = ["I seem to be having trouble, could you try again later?", "Uh oh, I'm having difficulties. Try again later.", \
         "I can't seem to connect, try again some time later.", "Oh no, something's wrong on my end. Could you try again later?", \
-        'I don\'t seem to be working right now! Try something else, or try again later.']
+        'I don\'t seem to be working right now! Try something else, or try again later.', "I can't get that information right now."]
 RESTAURANTS = ["I can't seem to find anything matching that.","My restaurants finding tool is broken at the moment!"]
 
 def msg(msg_type,message):
@@ -219,8 +219,29 @@ def restaurant(response,request,query,geo_loc):
     else:
         request.session['_messages'].append(cc_msg(random_choice(RESTAURANTS)))
 
+def uber(response,request,query,geo_loc):
+    prevIntent = request.session['_historyIntents'][-2]
+
+    if prevIntent == "direction" or prevIntent == "getCost" or prevIntent == "lengthTime":
+        prevQuery = request.session['_historyQueries'][-1]
+        if prevQuery['Uber price'] != 'Directions not found':
+            price = prevQuery['Uber price']
+            duration = prevQuery['Uber duration']
+            arrival = prevQuery['Uber driver arrival (sec)']
+
+            prevTrip = request.session['_historyDestinations'][-1]
+            if prevTrip[0] == "current_loc" or prevTrip[0] == geo_loc:
+                a1 = "your current location"
+            else:
+                a1 = prevTrip[0]
+
+            request.session['_messages'].append(cc_msg("By Uber from {0} to {1}, it would cost around {2} for a {3} trip. A driver could be at {0} in about {4} minutes.".format(a1, prevTrip[1], price, duration, arrival % 60 + 2)))
+        else:
+            request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
+    else:
+        pass
+
 def decide_intent(intent,response,request,query,geo_loc):
-    #TODO: may need to break down into separate methods
     if intent == "help":
         display_help(request)
     # intent is to navigate
@@ -232,8 +253,12 @@ def decide_intent(intent,response,request,query,geo_loc):
     # asked how long it takes to get somewhere
     elif intent == "lengthTime":
         lengthTime(response,request,query,geo_loc)
+    # user wants food
     elif intent == "restaurant":
         restaurant(response,request,query,geo_loc)
+    # ask about uber
+    elif intent == "uber":
+        uber(response,request,query,geo_loc)
     # unknown intent
     else:
         r = response["result"]["fulfillment"]["speech"]
@@ -242,7 +267,8 @@ def decide_intent(intent,response,request,query,geo_loc):
         else:
             request.session['_messages'].append({'author':'charliechat', \
                         'msg':random_choice(INTENT_CLARIFICATION)})
-        return HttpResponseRedirect(reverse('index'))
+    
+    return HttpResponseRedirect(reverse('index'))
 
 
 def dialog_flow(request,query,geo_loc):
