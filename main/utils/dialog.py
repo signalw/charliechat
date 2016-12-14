@@ -100,6 +100,13 @@ def direction(response,request,query,geo_loc):
         if (validate(address1) == "current_loc"):
             address1 = geo_loc
         
+        # if context calls for navigating to a restaurant
+        if request.session['_historyIntents'][-2] == 'restaurant' and address2 in RESTAURANT_NUMS:
+            yelpQuery = request.session['_historyYelp'][-1]
+            print(yelpQuery[words2num(address2)])
+            address2 = yelpQuery[words2num(address2)]['location']
+
+        # get navigation info, validate first address
         info_dict = return_travel_info(address1,address2)
         if address1 == geo_loc:
             address1 = "current_loc" # make it easier to check historyDestinations later on
@@ -215,7 +222,8 @@ def restaurant(response,request,query,geo_loc):
     if len(parsed) > 0:
         candidates = [parsed[term][name] for term in parsed for name in parsed[term]]
         candidates_text = [restaurant_listing(candidate) for candidate in candidates]
-        request.session['_messages'].append(cc_msg("Here's what I found {0}: <ol>".format(location_phrase)+" ".join(candidates_text)+"</ol>"))
+        request.session['_messages'].append(cc_msg("Here's what I found {0} that's open now: <ol>".format(location_phrase)+" ".join(candidates_text)+"</ol>"))
+        request.session['_historyYelp'].append(candidates)
     else:
         request.session['_messages'].append(cc_msg(random_choice(RESTAURANTS)))
 
@@ -344,3 +352,8 @@ def dialog_flow(request,query,geo_loc):
                             request.session['_messages'].append(cc_msg('Okay. The cost from where to where?'))
         else:
             decide_intent(intent,response,request,query,geo_loc)
+
+
+def words2num(word):
+    d = {'one':1,'two':2,'three':3,'four':4,'five':5,'first':1,'second':2,'third':3,'fourth':4,'fifth':5,1:1,2:2,3:3,4:4,5:5}
+    return d[word]

@@ -1,6 +1,8 @@
 import apiai, json
 from CharlieChat import settings
 
+RESTAURANT_NUMS = ['one','two','three','four','five','first','second','third','fourth','fifth',1,2,3,4,5]
+
 def apiai_request(query):
     """Send raw query text to apiai agent, return a json response"""
     ai = apiai.ApiAI(settings.APIAI_DEVELOPER_TOKEN)
@@ -21,7 +23,7 @@ def get_info_for_locations(response):
     return params["loc"],params["type"]
 
 def validate(address):
-    curr = ["here", "current location", "current place", "where i am", "my current location"]
+    curr = ["here", "current location", "current place", "where i am", "my current location", "me", "my location", "my current spot"]
     there = ["there", "that area", "yonder", "those parts"]
     if not address or address.lower() in curr:
         # return the user's current location
