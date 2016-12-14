@@ -210,14 +210,14 @@ def process_directions(origin,destination):
             departtime = txt['legs'][0]['departure_time']['text']
         # compute it
         else:
-            formatting = '%I:%M %p'
+            formatting = '%I:%M%p'
             
             current_time = datetime.datetime.now()
             d = (duration.split(' ')[0]) 
-            departtime = current_time.strftime(formatting)
+            departtime = current_time.strftime(formatting).lower()
 
             arrival_date = current_time + datetime.timedelta(minutes=int(d))
-            arrivaltime = arrival_date.strftime(formatting)
+            arrivaltime = arrival_date.strftime(formatting).lower()
             
 
         directionsraw = str(txt2).split('html_instructions')[1:]

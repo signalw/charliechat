@@ -5,6 +5,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from .queryGoogleForDirectionsv5 import return_travel_info
 from .apiai import *
 from .yelpfusionapi import *
+from .recommend import *
 import json, re
 
 from random import randint
@@ -129,7 +130,18 @@ def direction(response,request,query,geo_loc):
             request.session['_messages'].append({'author':'charliechat', \
                 'msg':"Arrival time is {} if you leave at {}.".format(info_dict['MBTA arrival time'],info_dict['MBTA depart time'])})
             request.session['_messages'].append(cc_msg(assemble_instructions_map(info_dict['Route segments'])))
+        
         request.session['_historyQueries'].append(info_dict)
+
+        # recommend an uber, maybe
+        rec_uber = recommend_uber(info_dict)
+        if rec_uber[0]:
+            request.session['_messages'].append(cc_msg("It might be a better idea to take an Uber instead.".format()))
+            for rec in rec_uber[1:]:
+                if rec:
+                    request.session['_messages'].append(cc_msg(rec))
+
+
         # if they asked for the price previously, also give the price
         if 'getCost' in request.session['_unfinished']:
             price = info_dict['MBTA price']
