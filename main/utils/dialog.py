@@ -115,7 +115,7 @@ def direction(response,request,query,geo_loc):
             if address1 in RESTAURANT_NUMS:
                 address1 = yelpQuery[words2num(address1) - 1]['location']
         # handle agree/disagree in between
-        elif len(request.session['_historyIntents']) > 1 and request.session['_historyIntents'][-3] == 'restaurant':
+        elif len(request.session['_historyIntents']) > 2 and request.session['_historyIntents'][-3] == 'restaurant':
             yelpQuery = request.session['_historyYelp'][-1]
             if address2 in RESTAURANT_NUMS:
                 address2 = yelpQuery[words2num(address2) - 1]['location']
@@ -268,7 +268,7 @@ def restaurant(response,request,query,geo_loc):
 def uber(response,request,query,geo_loc):
     prevIntent = request.session['_historyIntents'][-2]
 
-    if prevIntent == "direction" or prevIntent == "getCost" or prevIntent == "lengthTime":
+    if prevIntent == "direction" or prevIntent == "getCost" or prevIntent == "lengthTime" or prevIntent == "agree" or prevIntent == "lengthTrip":
         prevQuery = request.session['_historyQueries'][-1]
         if prevQuery['Uber price'] != 'Directions not found':
             price = prevQuery['Uber price']
@@ -363,7 +363,7 @@ def dialog_flow(request,query,geo_loc):
                             request.session['_messages'].append(cc_msg('Got it!'))
                             price = request.session['_historyQueries'][-1]['MBTA price']
                             if price != 'Directions not found':
-                                request.session['_messages'].append(cc_msg("The price was ${}.".format(price)))
+                                request.session['_messages'].append(cc_msg("The price was ${0:.2f}.".format(price)))
                             else:
                                 request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
                             request.session['_historyIntents'].append('getCost')
