@@ -191,9 +191,9 @@ def process_directions(origin,destination):
         #price and time for uberx. change index to get different uber prices
         p,t = getUberPriceTime(start_lat, start_lng,end_lat,end_lng)
         drive_duration,uber_price,uber_time = ('','','')
-        if 'prices' not in p:
-            uber_price = p['prices'][1]['estimate']  
-            uber_time = t['times'][1]['estimate']
+        if 'prices' not in p and len(p['prices']) > 1:
+            uber_price = p['prices'][0]['estimate']  
+            uber_time = t['times'][0]['estimate']
             #used for uber duration
             drive_duration = buildGoogleMapsURL(origin, destination, mode = 'driving')['routes'][0]['legs'][0]['duration']['text']
         

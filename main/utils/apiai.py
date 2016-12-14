@@ -2,7 +2,7 @@ import apiai, json
 from CharlieChat import settings
 
 RESTAURANT_NUMS = ['one','two','three','four','five','first','second','third','fourth','fifth',1,2,3,4,5]
-DISAMBIGUATE_MASS = {'brandeis':'waltham','brandeis university':'waltham','harvard':'cambridge','mit':'cambridge','arlington':'massachusetts','south station':'boston','north station':'boston','chinatown':'boston','northeastern':'university huntington ave'}
+DISAMBIGUATE_MASS = {'brandeis':'waltham','brandeis university':'waltham','harvard':'cambridge','mit':'cambridge','arlington':'massachusetts','south station':'boston','north station':'boston','chinatown':'boston','northeastern':'university huntington ave','logan':'airport'}
 
 def apiai_request(query):
     """Send raw query text to apiai agent, return a json response"""
