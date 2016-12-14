@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser, User
 from django.utils import timezone
 from .utils.dialog import *
+from .utils.recommend import recommend_meal
 from .models import Profile, Query
 
 FIRST_TIME_MSG = "Welcome to CharlieChat! Are you new to the area?"
@@ -18,9 +19,10 @@ def index(request):
     request.session['_historyDestinations'] = request.session.get('_historyDestinations',[]) # previous places user wanted to go
     request.session['_historyYelp'] = request.session.get('_historyYelp',[])
     request.session['_unfinished'] = request.session.get('_unfinished',{}) # queries that need more info to finish
+    request.session['_suggestedMeal'] = request.session.get('_suggestedMeal',False)
 
     # display the page
-    if request.method == "GET":
+    if request.method == "GET":       
         return render(request, 'index.html',
             {'messages': request.session['_messages']})
     # clear messages
@@ -31,6 +33,7 @@ def index(request):
         request.session['_historyDestinations'] = []
         request.session['_historyYelp'] = []
         request.session['_unfinished'] = {}
+        request.session['_suggestedMeal'] = False
         return HttpResponseRedirect(reverse('index'))
     # dialog time
     else:
@@ -47,6 +50,7 @@ def index(request):
         q.add_date = timezone.now()
         q.save()
         dialog_flow(request,query,geo_loc)
+        recommend_meal(request,geo_loc)
         return HttpResponseRedirect(reverse('index'))
 
 def about(request):

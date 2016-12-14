@@ -87,9 +87,7 @@ def assemble_instructions_map(segments):
 
     return code
 
-def restaurant_listing(candidate):
-    """assemble code to display a restaurant"""
-    return "<li>{}, {} stars, <span class='restaurantprice'>{}</span><br><small>{}</small></li>".format(candidate['name'],candidate['rating'],candidate['price'],candidate['location'])
+
 
 def display_help(request):
     request.session['_messages'].append(cc_msg("I can do a lot of things."))
@@ -113,9 +111,9 @@ def direction(response,request,query,geo_loc):
         if len(request.session['_historyIntents']) > 1 and request.session['_historyIntents'][-2] == 'restaurant':
             yelpQuery = request.session['_historyYelp'][-1]
             if address2 in RESTAURANT_NUMS:
-                address2 = yelpQuery[words2num(address2)]['location']
+                address2 = yelpQuery[words2num(address2) - 1]['location']
             if address1 in RESTAURANT_NUMS:
-                address1 = yelpQuery[words2num(address1)]['location']
+                address1 = yelpQuery[words2num(address1) - 1]['location']
 
         # get navigation info, validate first address
         info_dict = return_travel_info(address1,address2)
@@ -391,7 +389,7 @@ def dialog_flow(request,query,geo_loc):
                         
                         request.session['_messages'].append(cc_msg("Awesome."))
                         display_help(request)
-                        request.session['_messages'].append(cc_msg("What can you do for you?"))
+                        request.session['_messages'].append(cc_msg("What can I help you with?"))
                     elif unfinished_request == 'lengthTime':
                         # not the last trip mentioned
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
