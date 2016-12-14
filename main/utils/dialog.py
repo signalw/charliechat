@@ -114,6 +114,13 @@ def direction(response,request,query,geo_loc):
                 address2 = yelpQuery[words2num(address2) - 1]['location']
             if address1 in RESTAURANT_NUMS:
                 address1 = yelpQuery[words2num(address1) - 1]['location']
+        # handle agree/disagree in between
+        elif len(request.session['_historyIntents']) > 1 and request.session['_historyIntents'][-3] == 'restaurant':
+            yelpQuery = request.session['_historyYelp'][-1]
+            if address2 in RESTAURANT_NUMS:
+                address2 = yelpQuery[words2num(address2) - 1]['location']
+            if address1 in RESTAURANT_NUMS:
+                address1 = yelpQuery[words2num(address1) - 1]['location']
 
         # get navigation info, validate first address
         info_dict = return_travel_info(address1,address2)
@@ -409,5 +416,5 @@ def dialog_flow(request,query,geo_loc):
 
 
 def words2num(word):
-    d = {'one':1,'two':2,'three':3,'four':4,'five':5,'first':1,'second':2,'third':3,'fourth':4,'fifth':5,1:1,2:2,3:3,4:4,5:5}
+    d = {'one':1,'two':2,'three':3,'four':4,'five':5,'first':1,'second':2,'third':3,'fourth':4,'fifth':5,1:1,2:2,3:3,4:4,5:5,6:6,'six':6,'sixth':6}
     return d[word]

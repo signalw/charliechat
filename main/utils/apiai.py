@@ -1,7 +1,7 @@
 import apiai, json
 from CharlieChat import settings
 
-RESTAURANT_NUMS = ['one','two','three','four','five','first','second','third','fourth','fifth',1,2,3,4,5]
+RESTAURANT_NUMS = ['one','two','three','four','five','first','second','third','fourth','fifth',1,2,3,4,5,6,'six','sixth']
 DISAMBIGUATE_MASS = {'brandeis':'waltham','brandeis university':'waltham','harvard':'cambridge','mit':'cambridge','arlington':'massachusetts','south station':'boston','north station':'boston','chinatown':'boston','northeastern':'university huntington ave','logan':'airport','dorcester':'boston','fanueil hall':'boston','burlington':'massachusetts','watertown':'massachusetts'}
 
 def apiai_request(query):
