@@ -93,7 +93,7 @@ def restaurant_listing(candidate):
 
 def display_help(request):
     request.session['_messages'].append(cc_msg("I can do a lot of things."))
-    request.session['_messages'].append(cc_msg("Ask me how to get somewhere, how to get from point A to point B, how much that costs, or how long that'll take."))
+    request.session['_messages'].append(cc_msg("Ask me how to get somewhere, how to get from point A to point B, how much that costs, how long that'll take, or how an Uber trip might compare. I might also serve up recommendations at certain points to make your life easier!"))
 
 def direction(response,request,query,geo_loc):
     address1, address2 = get_addresses_from_response(response)
@@ -140,6 +140,7 @@ def direction(response,request,query,geo_loc):
             for rec in rec_uber[1:]:
                 if rec:
                     request.session['_messages'].append(cc_msg(rec))
+            request.session['_messages'].append(cc_msg("The cost would be {}.".format(info_dict['Uber price'])))
 
 
         # if they asked for the price previously, also give the price
@@ -321,16 +322,17 @@ def dialog_flow(request,query,geo_loc):
     if (len(request.session['_messages']) == 2 and request.session['_messages'][0] == cc_msg(FIRST_TIME_MSG)) \
         or (request.session['_messages'][-2] == cc_msg(FIRST_TIME_MSG)):
         user = User.objects.get(username="admin") if isinstance(request.user, AnonymousUser) else request.user
+        # they're a tourist'
         if intent == 'agree':
             user.profile.group = 1
             user.save()
             request.session['_messages'].append(cc_msg("That's great, welcome!"))
             display_help(request)
             request.session['_messages'].append(cc_msg('What do you want to know?'))
+        # either worker or student, need further clarification
         elif intent == 'disagree':
-            request.session['_messages'].append(cc_msg("Well hi!"))
-            display_help(request)
-            request.session['_messages'].append(cc_msg('What can I do for you?'))
+            request.session['_messages'].append(cc_msg("Cool. Are you a student?"))
+            request.session['_unfinished']['userType'] = 'clarification'
         else:
             request.session['_messages'].append(cc_msg('I\'ll get on that.'))
             decide_intent(intent,response,request,query,geo_loc)
@@ -343,7 +345,15 @@ def dialog_flow(request,query,geo_loc):
             else:
                 if len(request.session['_unfinished']) == 1:
                     unfinished_request = list(request.session['_unfinished'].keys())[0]
-                    if unfinished_request == 'getCost':
+                    if unfinished_request == 'userType': # are a student
+                        user = User.objects.get(username="admin") if isinstance(request.user, AnonymousUser) else request.user
+                        user.profile.group = 3
+                        user.save()
+                        
+                        request.session['_messages'].append(cc_msg("I hope you've been enjoying your studies!"))
+                        display_help(request)
+                        request.session['_messages'].append(cc_msg("What can I do for you?"))
+                    elif unfinished_request == 'getCost':
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('Got it!'))
                             price = request.session['_historyQueries'][-1]['MBTA price']
@@ -374,7 +384,15 @@ def dialog_flow(request,query,geo_loc):
             else:
                 if len(request.session['_unfinished']) == 1:
                     unfinished_request = list(request.session['_unfinished'].keys())[0]
-                    if unfinished_request == 'lengthTime':
+                    if unfinished_request == 'userType': # are a worker
+                        user = User.objects.get(username="admin") if isinstance(request.user, AnonymousUser) else request.user
+                        user.profile.group = 2
+                        user.save()
+                        
+                        request.session['_messages'].append(cc_msg("Awesome."))
+                        display_help(request)
+                        request.session['_messages'].append(cc_msg("What can you do for you?"))
+                    elif unfinished_request == 'lengthTime':
                         # not the last trip mentioned
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('Okay. What trip do you mean?'))
@@ -383,6 +401,12 @@ def dialog_flow(request,query,geo_loc):
                         if request.session['_unfinished'][unfinished_request] == 'farBack':
                             request.session['_messages'].append(cc_msg('Okay. The cost from where to where?'))
         else:
+            # maybe they didn't answer the student question
+            # just assume they're a worker and move on
+            if 'userType' in request.session['_unfinished']:
+                request.session['_unfinished'] = {}
+                request.session['_messages'].append(cc_msg("All right. Just remember you can always change your user type in settings if you login."))
+            
             decide_intent(intent,response,request,query,geo_loc)
 
 
