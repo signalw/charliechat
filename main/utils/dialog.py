@@ -252,9 +252,12 @@ def restaurant(response,request,query,geo_loc):
         location_phrase = "around {}".format(loc)
     # user wants food near the previously mentioned destination
     else:
-        loc = request.session['_historyDestinations'][-1][1]
-        businesses = query_multiterm(["food"],loc,'5')
-        location_phrase = "near {}".format(loc)
+        if len(request.session['_historyDestinations']) > 0:
+            loc = request.session['_historyDestinations'][-1][1]
+            businesses = query_multiterm(["food"],loc,'5')
+            location_phrase = "near {}".format(loc)
+        else:
+            parsed = {}
 
     parsed = parseResponses(businesses)
     if len(parsed) > 0:
