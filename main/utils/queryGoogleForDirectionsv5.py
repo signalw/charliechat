@@ -1,6 +1,6 @@
 import requests
 from CharlieChat import settings
-from datetime import datetime
+import datetime
 import re
 #ticket price variables. assumes no charlie-card
 #most prices pertain to charlie card zones.  '1A' is the price to go between two '1A' stops only
@@ -201,8 +201,7 @@ def process_directions(origin,destination):
         uber_time = t['times'][1]['estimate']
         #used for uber duration
         drive_duration = buildGoogleMapsURL(origin, destination, mode = 'driving')['routes'][0]['legs'][0]['duration']['text']
-        arrivaltime = txt['legs'][0]['arrival_time']['text']
-        departtime = txt['legs'][0]['departure_time']['text']
+        
         duration = txt['legs'][0]['duration']['text']
 
         # if arrival time given
@@ -211,9 +210,15 @@ def process_directions(origin,destination):
             departtime = txt['legs'][0]['departure_time']['text']
         # compute it
         else:
-            current_time = datetime.now()
-            d = datetime.strptime(duration)
-            print(d)
+            formatting = '%I:%M %p'
+            
+            current_time = datetime.datetime.now()
+            d = (duration.split(' ')[0]) 
+            departtime = current_time.strftime(formatting)
+
+            arrival_date = current_time + datetime.timedelta(minutes=int(d))
+            arrivaltime = arrival_date.strftime(formatting)
+            
 
         directionsraw = str(txt2).split('html_instructions')[1:]
 

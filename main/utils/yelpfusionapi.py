@@ -281,7 +281,7 @@ def parseResponses(termToResponseList):
 			infoDict['price'] = response['price']
 			infoDict['distance'] = response['distance']
 			infoDict['url'] = response['url']
-			infoDict['location'] = "{} {} {}".format(response['location']['address1'],response['location']['city'],response['location']['state']) 
+			infoDict['location'] = "{}, {} {}".format(response['location']['address1'],response['location']['city'],response['location']['state']) 
 			businessInfoList[response['name']] = infoDict
 		termToBusinessDict[term] = businessInfoList
 	return termToBusinessDict

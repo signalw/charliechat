@@ -32,6 +32,15 @@ def appendToDestHistory(request,start,dest):
 def random_choice(responses):
     return responses[randint(0,len(responses) - 1 )]
 
+def validate_addresses(a1,a2,geo_loc):
+    address1 = validate(a1)
+    address2 = validate(a2)
+    if address1 == "current_loc":
+        address1 = geo_loc
+    if address2 == "current_loc":
+        address2 = geo_loc
+    return address1,address2
+
 def assemble_instructions_map(segments):
     code = ""
 
@@ -79,7 +88,7 @@ def assemble_instructions_map(segments):
 
 def restaurant_listing(candidate):
     """assemble code to display a restaurant"""
-    return "<li>{}, {} stars, <span class='restaurantprice'>{}</span></li>".format(candidate['name'],candidate['rating'],candidate['price'])
+    return "<li>{}, {} stars, <span class='restaurantprice'>{}</span><br><small>{}</small></li>".format(candidate['name'],candidate['rating'],candidate['price'],candidate['location'])
 
 def display_help(request):
     request.session['_messages'].append(cc_msg("I can do a lot of things."))
@@ -97,21 +106,23 @@ def direction(response,request,query,geo_loc):
                 'msg':"Arrival time is {} if you leave at {}.".format(lastQuery['MBTA arrival time'],lastQuery['MBTA depart time'])})
             request.session['_messages'].append(cc_msg(assemble_instructions_map(lastQuery['Route segments'])))
     else:
-        if (validate(address1) == "current_loc"):
-            address1 = geo_loc
+        address1, address2 = validate_addresses(address1,address2,geo_loc)
         
         # if context calls for navigating to a restaurant
-        if request.session['_historyIntents'][-2] == 'restaurant' and address2 in RESTAURANT_NUMS:
+        if len(request.session['_historyIntents']) > 1 and request.session['_historyIntents'][-2] == 'restaurant':
             yelpQuery = request.session['_historyYelp'][-1]
-            print(yelpQuery[words2num(address2)])
-            address2 = yelpQuery[words2num(address2)]['location']
+            if address2 in RESTAURANT_NUMS:
+                address2 = yelpQuery[words2num(address2)]['location']
+            if address1 in RESTAURANT_NUMS:
+                address1 = yelpQuery[words2num(address1)]['location']
 
         # get navigation info, validate first address
         info_dict = return_travel_info(address1,address2)
         if address1 == geo_loc:
             address1 = "current_loc" # make it easier to check historyDestinations later on
+        if address2 == geo_loc:
+            address2 = "current_loc"
         appendToDestHistory(request,address1,address2)
-
         if info_dict['MBTA directions'] == 'Directions not found':
             request.session['_messages'].append(cc_msg(random_choice(TROUBLE)))
         else:
@@ -140,8 +151,9 @@ def getCost(response,request,query,geo_loc):
     if response['result']['parameters']['address2'] != '':
         address1, address2 = get_addresses_from_response(response)
         appendToDestHistory(request,address1,address2)
-        if (validate(address1) == "current_loc"):
-            address1 = geo_loc
+
+        address1, address2 = validate_addresses(address1,address2,geo_loc)
+
         info_dict = return_travel_info(address1,address2)
         request.session['_historyQueries'].append(info_dict)
         price = info_dict['MBTA price']
@@ -150,6 +162,8 @@ def getCost(response,request,query,geo_loc):
         else:
             if (validate(address1) == geo_loc):
                 address1 = "your current location"
+            if validate(address2) == geo_loc:
+                address2 = "your current location"
             request.session['_messages'].append(cc_msg('It\'ll cost you ${0:.2f} to go from {1} to {2}.'.format(price,address1,address2)))
     # if the previous request or the one before was a navigation, assume we're getting that cost
     elif request.session['_historyIntents'][-2] == "direction" or request.session['_historyIntents'][-3] == "direction":
@@ -176,6 +190,8 @@ def lengthTime(response,request,query,geo_loc):
         appendToDestHistory(request,address1,address2)
         if (validate(address1) == "current_loc"):
             address1 = geo_loc
+        if validate(address2) == "current_loc":
+            address2 = geo_loc
         info_dict = return_travel_info(address1,address2)
         duration = info_dict['MBTA duration']
         request.session['_historyQueries'].append(info_dict)
@@ -184,6 +200,8 @@ def lengthTime(response,request,query,geo_loc):
         else:
             if (validate(address1) == geo_loc):
                 address1 = "where you currently are"
+            if validate(address2) == geo_loc:
+                address2 = "your current spot"
             request.session['_messages'].append(cc_msg('It\'ll take you {0} to go from {1} to {2}.'.format(duration,address1,address2)))
     # ask if they're referencing the last mentioned
     elif 'direction' in request.session['_historyIntents'] or 'getCost' in request.session['_historyIntents']:
@@ -192,6 +210,8 @@ def lengthTime(response,request,query,geo_loc):
         a2 = lastQuery[1]
         if (validate(a1) == "current_loc"):
             a1 = "where you are now"
+        if validate(a2) == "current_loc":
+            a2 = "your current location"
         request.session['_messages'].append(cc_msg('Do you mean between {} and {}?'.format(a1,a2)))
         request.session['_unfinished']['lengthTime'] = 'farBack'
     else:

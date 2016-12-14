@@ -2,6 +2,7 @@ import apiai, json
 from CharlieChat import settings
 
 RESTAURANT_NUMS = ['one','two','three','four','five','first','second','third','fourth','fifth',1,2,3,4,5]
+DISAMBIGUATE_MASS = {'brandeis':'waltham','brandeis university':'waltham','harvard':'cambridge','mit':'cambridge','arlington':'massachusetts','south station':'boston','north station':'boston','chinatown':'boston','northeastern':'university huntington ave'}
 
 def apiai_request(query):
     """Send raw query text to apiai agent, return a json response"""
@@ -28,8 +29,10 @@ def validate(address):
     if not address or address.lower() in curr:
         # return the user's current location
         return "current_loc"
-    elif address in there:
+    elif address.lower() in there:
         return "there"
+    elif address.lower() in DISAMBIGUATE_MASS:
+        return "{} {}".format(address,DISAMBIGUATE_MASS[address])
     return address
 
 def get_intent_from_response(response):
