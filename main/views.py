@@ -24,7 +24,7 @@ def index(request):
             {'messages': request.session['_messages']})
     # clear messages
     elif request.method == "POST" and request.POST.get('clear_messages'):
-        request.session['_messages'] =  [msg('charliechat',"That's all gone!")]
+        request.session['_messages'] =  [cc_msg("That's all gone!"),cc_msg(FIRST_TIME_MSG)]
         request.session['_historyQueries'] = []
         request.session['_historyIntents'] = []
         request.session['_historyDestinations'] = []

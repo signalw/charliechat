@@ -245,7 +245,8 @@ def dialog_flow(request,query,geo_loc):
     print(intent)
 
     # logic for first time use
-    if len(request.session['_messages']) == 2 and request.session['_messages'][0] == cc_msg(FIRST_TIME_MSG):
+    if (len(request.session['_messages']) == 2 and request.session['_messages'][0] == cc_msg(FIRST_TIME_MSG)) \
+        or (request.session['_messages'][-2] == cc_msg(FIRST_TIME_MSG)):
         user = User.objects.get(username="admin") if isinstance(request.user, AnonymousUser) else request.user
         if intent == 'agree':
             user.profile.group = 1
