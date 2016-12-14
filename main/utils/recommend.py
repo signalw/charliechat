@@ -75,14 +75,14 @@ def recommend_meal(request,geo_loc):
             terms = getUserType(userType)
             category = terms[randint(0,len(terms) - 1 )]
             
-            rec = query_multiterm(["food"], geo_loc, '3')
+            rec = query_multiterm(["food",category], geo_loc, '3')
             parsed = parseResponses(rec)
             if len(parsed) > 0:
                 candidates = [parsed[term][name] for term in parsed for name in parsed[term]]
                 candidates_text = [restaurant_listing(candidate) for candidate in candidates]
 
                 request.session['_messages'].append({'author':'charliechat','msg':"Hey, it's time for {}!".format(current_meal)})
-                request.session['_messages'].append({'author':'charliechat','msg':"Here's what I found that's open now near you: <ol>"+" ".join(candidates_text)+"</ol>"})
+                request.session['_messages'].append({'author':'charliechat','msg':"Here's what I found that's open now near you, along with some interesting things you might want to check out: <ol>"+" ".join(candidates_text)+"</ol>"})
 
                 request.session['_historyYelp'].append(candidates)
                 request.session['_historyIntents'].append('restaurant')
