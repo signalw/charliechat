@@ -2,8 +2,11 @@
 
 {% block content %}
 <div class="aboutContent">
+
 <h1>About CharlieChat</h1>
 <p>CharlieChat is a web application that learns about you and helps you navigate the Greater Boston area, providing suggestions, reminders, and recommendations when relevant. It is a group final project for Marie Meteer's Automated Speech Recognition class at Brandeis University.</p>
+
+<hr>
 
 <h2>How to use (for AVIOS)</h2>
 <p>The <a href="/">main app</a> is simple to operate. The majority of the screen is dedicated to a log of the conversations you've had with CharlieChat. Your input is in blue and aligned to the right, the app's in gray and aligned to the left. At the bottom is where you interact with the app. You can type queries in the text box and submit or hit &lsquo;speak&rsquo; and have it put what you say into the text box.</p>
@@ -17,29 +20,54 @@
     <li>On initial startup, the browser should ask if it can use your current location. If you decline this, the app will work as long as you specify starting locations</li>
     <li>Similarly, the app should ask for permission to use your microphone the first time you press the &lsquo;speak&rsquo; button and it might be necessary to press the button a second time after giving permission</li>
     <li>The application will work after a fashion if locations not in the greater Boston area are specified, but for ideal use any places mentioned are in the greater Boston area and accessible by public transportation.</li>
+    <li>In the instances when locations are listed out, you can refer to them by number (either cardinal or ordinal), but <em>not</em> yet by the name of that location.</li>
 </ul>
 
 <h3>Accounts</h3>
+<p>You can sign in with username <strong>admin</strong>, password <strong>charliechat2016</strong>, although it's not necessary to use the app. You may want to log in at first to see the user type change with the initial conversation with the app.</p>
+
+<hr>
 
 <h2>Functionality and example dialogs</h2>
+
+<h3>Functions</h3>
 <p>In addition to asking about how to get from one place to another, you can also ask about the cost of getting between places and the length of time. Omitting a start location assumes the current location is the starting point.</p>
 <p>The app does understand context and takes into account your history. You can ask how to get to certain locations and follow up with a question about the cost and the amount of time it will take and the conversation will proceed naturally (or start out with asking how much or how long and see where things lead). You can also ask about an Uber alternative. The app will ask for clarification at appropriate moments.</p>
 <p>You can also ask about restaurants near you, restaurants near some location, and restaurants near some implied previous location. You can also navigate to this location in all the ways previously mentioned.</p>
 <p>At certain times, the app will recommend nearby places to eat or an Uber ride if it's convenient.</p>
 
+<h3>Examples</h3>
+<p>Try any of the following or variations on them.</p>
+<ul>
+    <li>Take me to Logan airport.</li>
+    <li>What are some restaurants around [here/there/&lt;place you specify&gt;]?</li>
+    <li>How do I get to [the first/second/etc one]? (when referencing a list of given locations)</li>
+    <li>How much will that cost?</li>
+    <li>How long does it take to go there?</li>
+    <li>What about by Uber?</li>
+</ul>
+
+<hr>
+
 <h2>Team members</h2>
 <dl>
     <dt>Heather Lourie</dt>
-        <dd> </dd>
+        <dd><a href="mailto:halourie@gmail.com">halourie@gmail.com</a></dd>
     <dt>Jessica Huynh</dt>
-        <dd> </dd>
+        <dd><a href="jessicahhuynh@outlook.com">jessicahhuynh@outlook.com</a></dd>
     <dt>Thomas Zhang</dt>
-        <dd> </dd>
+        <dd><a href="thomasdzhang@gmail.com">thomasdzhang@gmail.com</a></dd>
     <dt>Xinhao Wang</dt>
-        <dd> </dd>
+        <dd><a href="xinhao@brandeis.edu">xinhao@brandeis.edu</a></dd>
 </dl>
 
+<hr>
+
 <h2>Technologies</h2>
+<p>The app uses a variety of different technologies that are pulled together. The backend is Django, an MVC Python framework. The frontend is plain HTML, CSS, and JavaScript with some jQuery. For the layout, we started with the <a href="http://getskeleton.com/">Skeleton CSS</a> framework and added our own custom styles.</p>
+<p>Speech recognition is done with HTML5 speech recognition, which currently only works in Webkit browsers. We grab the user's location with the HTML5 geolocation API.</p>
+<p>For natural language understanding that allows variation in how requests are worded, we used <a href="http://api.ai">api.ai</a>, which lets us define intents like get a restaurant and get directions and get back the intent and any entities/slots corresponding to the query. For example, if we send it the text &ldquo;how do I get to Brandeis from South Station?&rdquo;, it would return an intent of <strong>direction</strong> and parameters of <strong>Brandeis</strong> and <strong>South Station</strong>.</p>
+<p>The information in our app is given to us via the Google Transit, MBTA, Uber, and Yelp APIs and massaged into forms appropriate for our purposes.</p>
 
 </div>
 

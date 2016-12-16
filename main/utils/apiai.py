@@ -33,7 +33,7 @@ def validate(address):
         return "there"
     elif address.lower() in DISAMBIGUATE_MASS:
         return "{} {}".format(address,DISAMBIGUATE_MASS[address])
-    return address
+    return address.lower()
 
 def get_intent_from_response(response):
     """get intent from API.AI"""
